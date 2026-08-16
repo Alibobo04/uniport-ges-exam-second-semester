@@ -1,7 +1,7 @@
 import React from 'react';
 import { CourseInfo } from '../types';
 import { COURSES } from '../data/coursesData';
-import { Phone, MessageCircle, BookOpen, Layers } from 'lucide-react';
+import { Phone, MessageCircle, BookOpen, Layers, Youtube, Linkedin, Instagram, Facebook } from 'lucide-react';
 
 interface FooterProps {
   onSelectCourse: (course: CourseInfo) => void;
@@ -26,9 +26,52 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCourse }) => {
               </span>
             </div>
 
-            <p className="text-slate-400 text-xs leading-relaxed">
-              Online quiz practice and revision questions for GES 112 (Nigerian Peoples & Culture), GES 212.2 (Philosophy & Logic), and GES 300.2 (Venture Creation).
-            </p>
+            <div className="pt-2">
+              <span className="text-[11px] font-semibold text-slate-300 block mb-2">
+                Connect with me on Social Media:
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <a
+                  href="https://youtube.com/@scholarsdomain?si=C5JlSqmrzm-VerAs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-red-950/60 border border-slate-700 hover:border-red-600/50 text-slate-300 hover:text-red-400 transition-colors text-xs"
+                >
+                  <Youtube className="w-3.5 h-3.5 text-red-500" />
+                  <span>YouTube</span>
+                </a>
+
+                <a
+                  href="https://www.linkedin.com/in/dum-suka-barilee-josiah-b345b4339/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-blue-950/60 border border-slate-700 hover:border-blue-600/50 text-slate-300 hover:text-blue-400 transition-colors text-xs"
+                >
+                  <Linkedin className="w-3.5 h-3.5 text-blue-400" />
+                  <span>LinkedIn</span>
+                </a>
+
+                <a
+                  href="https://www.instagram.com/josiah_online_maths?igsh=MXF5bDN3YnQwNjBubg==&igsi=MXF5bDN3YnQwNjBubg=="
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-pink-950/60 border border-slate-700 hover:border-pink-600/50 text-slate-300 hover:text-pink-400 transition-colors text-xs"
+                >
+                  <Instagram className="w-3.5 h-3.5 text-pink-400" />
+                  <span>Instagram</span>
+                </a>
+
+                <a
+                  href="https://www.facebook.com/ali.bobo.98499"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-blue-950/60 border border-slate-700 hover:border-blue-500/50 text-slate-300 hover:text-blue-300 transition-colors text-xs"
+                >
+                  <Facebook className="w-3.5 h-3.5 text-blue-500" />
+                  <span>Facebook</span>
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* Quick Course Navigation */}

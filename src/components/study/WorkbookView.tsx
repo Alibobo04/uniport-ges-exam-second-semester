@@ -3,8 +3,9 @@ import { CourseInfo, Question } from '../../types';
 import { 
   BookOpen, Clock, CheckCircle2, XCircle, CheckCircle, Flag, RotateCcw, 
   Lightbulb, Search, Filter, AlertCircle, ChevronLeft, ChevronRight, 
-  AlertTriangle, Check, ArrowLeft
+  AlertTriangle, Check, ArrowLeft, Cloud
 } from 'lucide-react';
+import { saveQuizAttempt, saveCourseProgress } from '../../lib/quizService';
 
 interface WorkbookViewProps {
   course: CourseInfo;
@@ -12,6 +13,7 @@ interface WorkbookViewProps {
   initialSubMode?: WorkbookSubMode;
   onSubModeChange?: (mode: WorkbookSubMode) => void;
   onBackToDashboard?: () => void;
+  onExamStateChange?: (isActive: boolean) => void;
   soundEnabled: boolean;
 }
 
@@ -23,6 +25,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
   initialSubMode = 'select',
   onSubModeChange,
   onBackToDashboard,
+  onExamStateChange,
   soundEnabled,
 }) => {
   // Ensure we strictly use only workbook questions for this course
@@ -31,12 +34,19 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
     [questions, course.id]
   );
 
-  const [subMode, setSubMode] = useState<WorkbookSubMode>(initialSubMode);
+  const [subMode, setSubMode] = useState<WorkbookSubMode>(() => {
+    if (initialSubMode === 'drill' || initialSubMode === 'timed') {
+      return initialSubMode;
+    }
+    return 'select';
+  });
 
   // Sync subMode when prop changes
   useEffect(() => {
-    if (initialSubMode) {
+    if (initialSubMode === 'drill' || initialSubMode === 'timed') {
       setSubMode(initialSubMode);
+    } else {
+      setSubMode('select');
     }
   }, [initialSubMode]);
 
@@ -95,6 +105,15 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
     setRevealedAnswers({});
     setCompletedQuestions({});
   }, [course.id]);
+
+  // Report active exam status (hide secondary course banner when taking the test)
+  useEffect(() => {
+    const isTestActive = subMode === 'timed' && examStarted && !examSubmitted;
+    onExamStateChange?.(isTestActive);
+    return () => {
+      onExamStateChange?.(false);
+    };
+  }, [subMode, examStarted, examSubmitted, onExamStateChange]);
 
   // Audio effects
   const playSound = useCallback((type: 'correct' | 'wrong' | 'select' | 'submit') => {
@@ -176,7 +195,11 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
   const handleSelectDrillOption = (questionId: string, optionIdx: number, correctIdx: number) => {
     setSelectedOptions((prev) => ({ ...prev, [questionId]: optionIdx }));
     setRevealedAnswers((prev) => ({ ...prev, [questionId]: true }));
-    setCompletedQuestions((prev) => ({ ...prev, [questionId]: true }));
+    setCompletedQuestions((prev) => {
+      const updated = { ...prev, [questionId]: true };
+      saveCourseProgress(course.id, Object.keys(updated).length).catch(() => {});
+      return updated;
+    });
 
     if (optionIdx === correctIdx) {
       playSound('correct');
@@ -222,6 +245,32 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
     setExamSubmitted(true);
     setShowSubmitConfirm(false);
     playSound('submit');
+
+    // Calculate score for saving
+    let correct = 0;
+    quizQuestions.forEach((q) => {
+      if (quizAnswers[q.id] === q.correctAnswer) {
+        correct++;
+      }
+    });
+    const total = quizQuestions.length;
+    const pct = total > 0 ? (correct / total) * 100 : 0;
+    const score70 = total > 0 ? Math.round((correct / total) * 70) : 0;
+    const grade = pct >= 70 ? 'A' : pct >= 60 ? 'B' : pct >= 50 ? 'C' : pct >= 45 ? 'D' : 'F';
+    const timeSpent = durationMinutes * 60 - timeRemaining;
+
+    saveQuizAttempt({
+      courseId: course.id,
+      mode: 'workbook',
+      score: correct,
+      totalQuestions: total,
+      percentage: pct,
+      scoreOver70: score70,
+      grade,
+      timeSpentSeconds: timeSpent,
+    }).catch((err) => {
+      console.warn('Could not save attempt to cloud:', err);
+    });
   };
 
   const completedDrillCount = Object.keys(completedQuestions).length;
@@ -235,6 +284,8 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
     }
   });
   const quizPercentage = totalQuizQuestions > 0 ? Math.round((correctQuizCount / totalQuizQuestions) * 100) : 0;
+  const quizScoreOver70 = totalQuizQuestions > 0 ? Math.round((correctQuizCount / totalQuizQuestions) * 70) : 0;
+  const quizScoreOver70Formatted = quizScoreOver70.toString();
   const answeredQuizCount = Object.keys(quizAnswers).length;
   const flaggedQuizCount = Object.values(flaggedQuestions).filter(Boolean).length;
   const timeSpentSec = durationMinutes * 60 - timeRemaining;
@@ -265,6 +316,16 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
         <div className="bg-slate-900 text-white rounded-xl p-5 border border-slate-800 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
+              {onBackToDashboard && (
+                <button
+                  onClick={onBackToDashboard}
+                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-xs flex items-center gap-1 border border-slate-700 mr-1"
+                  title="Back to all study modes"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">All Modes</span>
+                </button>
+              )}
               <div className="p-2.5 rounded-lg bg-blue-600 text-white shadow-xs">
                 <BookOpen className="w-5 h-5" />
               </div>
@@ -412,7 +473,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
             {/* Mode Switcher Tabs */}
             <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
               <button
-                onClick={() => setSubMode('drill')}
+                onClick={() => handleSetSubMode('drill')}
                 className="px-2.5 py-1 rounded-md font-semibold bg-blue-600 text-white shadow-xs flex items-center gap-1"
               >
                 <BookOpen className="w-3 h-3" />
@@ -420,7 +481,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
               </button>
               <button
                 onClick={() => {
-                  setSubMode('timed');
+                  handleSetSubMode('timed');
                   setExamStarted(false);
                   setExamSubmitted(false);
                 }}
@@ -775,12 +836,17 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
 
             {/* Score & Grade Display */}
             <div className="flex items-center gap-3">
-              <div className="text-center p-3 rounded-xl bg-slate-900 text-white min-w-[100px] shadow-xs">
-                <div className="text-2xl sm:text-3xl font-black text-blue-400 font-mono">
-                  {quizPercentage}%
+              <div className="text-center p-3 rounded-xl bg-slate-900 text-white min-w-[130px] shadow-xs">
+                {/* Score over 70 */}
+                <div className="text-xl sm:text-2xl font-black text-blue-400 font-mono flex items-baseline justify-center gap-1">
+                  <span>{quizScoreOver70Formatted}</span>
+                  <span className="text-xs font-semibold text-slate-400">/ 70</span>
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                  {correctQuizCount} / {totalQuizQuestions} Correct
+                {/* Score over total questions & percentage */}
+                <div className="text-[11px] text-slate-300 font-mono mt-1 pt-1 border-t border-slate-800 flex items-center justify-center gap-1">
+                  <span className="text-white font-bold">{correctQuizCount}/{totalQuizQuestions} Qs</span>
+                  <span className="text-slate-500">•</span>
+                  <span className="text-blue-300 font-semibold">{quizPercentage}%</span>
                 </div>
               </div>
 
@@ -798,12 +864,12 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
           {/* Quick Metrics row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4 text-center text-xs">
             <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
-              <span className="text-[10px] text-slate-500 font-bold uppercase block">Total</span>
-              <span className="text-sm font-bold text-slate-900 font-mono">{totalQuizQuestions}</span>
+              <span className="text-[10px] text-slate-500 font-bold uppercase block">Raw Score</span>
+              <span className="text-sm font-bold text-slate-900 font-mono">{correctQuizCount} / {totalQuizQuestions}</span>
             </div>
             <div className="p-2.5 rounded-lg bg-blue-50 border border-blue-200">
-              <span className="text-[10px] text-blue-700 font-bold uppercase block">Correct</span>
-              <span className="text-sm font-bold text-blue-800 font-mono">{correctQuizCount}</span>
+              <span className="text-[10px] text-blue-700 font-bold uppercase block">Score (Over 70)</span>
+              <span className="text-sm font-bold text-blue-800 font-mono">{quizScoreOver70Formatted} / 70</span>
             </div>
             <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200">
               <span className="text-[10px] text-rose-700 font-bold uppercase block">Missed</span>

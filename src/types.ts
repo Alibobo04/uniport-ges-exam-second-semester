@@ -60,3 +60,12 @@ export interface QuizState {
   mode: 'timed' | 'practice';
 }
 
+export interface StudentProfile {
+  id: string;
+  firstName: string;
+  secondName: string;
+  department: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+

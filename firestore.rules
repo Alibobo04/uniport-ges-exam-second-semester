@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default-deny catch-all (Pillar 1 & Global Safety Net)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Entity Validations
+    function isValidStudent(data) {
+      return data.keys().hasAll(['id', 'firstName', 'secondName', 'department', 'createdAt'])
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 128
+        && data.firstName is string && data.firstName.size() > 0 && data.firstName.size() <= 100
+        && data.secondName is string && data.secondName.size() > 0 && data.secondName.size() <= 100
+        && data.department is string && data.department.size() > 0 && data.department.size() <= 150
+        && data.createdAt is string && data.createdAt.size() > 0 && data.createdAt.size() <= 64
+        && (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 64));
+    }
+
+    function isValidQuizAttempt(data, studentId) {
+      return data.keys().hasAll(['id', 'studentId', 'courseId', 'mode', 'score', 'totalQuestions', 'percentage', 'grade', 'completedAt'])
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 128
+        && data.studentId is string && data.studentId == studentId
+        && data.courseId is string && data.courseId.size() > 0 && data.courseId.size() <= 64
+        && data.mode is string && (data.mode == 'cbt' || data.mode == 'workbook')
+        && data.score is number && data.score >= 0 && data.score <= 1000
+        && data.totalQuestions is number && data.totalQuestions > 0 && data.totalQuestions <= 1000
+        && data.percentage is number && data.percentage >= 0 && data.percentage <= 100
+        && data.grade is string && data.grade.size() <= 4
+        && data.completedAt is string && data.completedAt.size() <= 64
+        && (!('studentName' in data) || (data.studentName is string && data.studentName.size() <= 200))
+        && (!('department' in data) || (data.department is string && data.department.size() <= 150))
+        && (!('scoreOver70' in data) || (data.scoreOver70 is number && data.scoreOver70 >= 0 && data.scoreOver70 <= 70))
+        && (!('timeSpentSeconds' in data) || (data.timeSpentSeconds is number && data.timeSpentSeconds >= 0));
+    }
+
+    function isValidCourseProgress(data, studentId) {
+      return data.keys().hasAll(['id', 'studentId', 'courseId', 'completedWorkbookCount', 'updatedAt'])
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 128
+        && data.studentId is string && data.studentId == studentId
+        && data.courseId is string && data.courseId.size() > 0 && data.courseId.size() <= 64
+        && data.completedWorkbookCount is number && data.completedWorkbookCount >= 0
+        && data.updatedAt is string && data.updatedAt.size() <= 64
+        && (!('lastStudiedAt' in data) || (data.lastStudiedAt is string && data.lastStudiedAt.size() <= 64));
+    }
+
+    // Student profile documents
+    match /students/{studentId} {
+      allow get: if isValidId(studentId);
+      allow create: if isValidId(studentId) && isValidStudent(incoming()) && incoming().id == studentId;
+      allow update: if isValidId(studentId) && isValidStudent(incoming()) && incoming().id == existing().id && incoming().createdAt == existing().createdAt;
+      allow delete: if false;
+
+      // Subcollection: Quiz Attempts
+      match /quizAttempts/{attemptId} {
+        allow get, list: if isValidId(studentId);
+        allow create: if isValidId(studentId) && isValidId(attemptId) && isValidQuizAttempt(incoming(), studentId) && incoming().id == attemptId;
+        allow update: if false;
+        allow delete: if isValidId(studentId) && isValidId(attemptId);
+      }
+
+      // Subcollection: Course Progress
+      match /progress/{courseId} {
+        allow get, list: if isValidId(studentId);
+        allow create: if isValidId(studentId) && isValidId(courseId) && isValidCourseProgress(incoming(), studentId);
+        allow update: if isValidId(studentId) && isValidId(courseId) && isValidCourseProgress(incoming(), studentId) && incoming().studentId == existing().studentId && incoming().courseId == existing().courseId;
+        allow delete: if isValidId(studentId) && isValidId(courseId);
+      }
+    }
+  }
+}

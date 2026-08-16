@@ -1,0 +1,138 @@
+{
+  "entities": {
+    "StudentProfile": {
+      "title": "StudentProfile",
+      "description": "Student details provided on the landing page modal (First Name, Second Name, Department)",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique student identifier generated on first access"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Student first name"
+        },
+        "secondName": {
+          "type": "string",
+          "description": "Student second name / surname"
+        },
+        "department": {
+          "type": "string",
+          "description": "Student academic department"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when student profile was recorded in Firestore"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when student profile was last updated"
+        }
+      },
+      "required": ["id", "firstName", "secondName", "department", "createdAt"]
+    },
+    "QuizAttempt": {
+      "title": "QuizAttempt",
+      "description": "Record of a completed timed CBT exam or workbook quiz session",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the quiz attempt"
+        },
+        "studentId": {
+          "type": "string",
+          "description": "Unique ID of the student"
+        },
+        "studentName": {
+          "type": "string",
+          "description": "Full name of the student"
+        },
+        "department": {
+          "type": "string",
+          "description": "Department of the student"
+        },
+        "courseId": {
+          "type": "string",
+          "description": "ID of the course (e.g. ges112, ges212, ges300)"
+        },
+        "mode": {
+          "type": "string",
+          "description": "Quiz mode: cbt or workbook"
+        },
+        "score": {
+          "type": "number",
+          "description": "Number of correct answers"
+        },
+        "totalQuestions": {
+          "type": "number",
+          "description": "Total number of questions in the quiz"
+        },
+        "percentage": {
+          "type": "number",
+          "description": "Percentage score (0-100)"
+        },
+        "grade": {
+          "type": "string",
+          "description": "Letter grade (A, B, C, D, F)"
+        },
+        "timeSpentSeconds": {
+          "type": "number",
+          "description": "Duration spent on the quiz in seconds"
+        },
+        "completedAt": {
+          "type": "string",
+          "description": "Timestamp when quiz was submitted"
+        }
+      },
+      "required": ["id", "studentId", "courseId", "mode", "score", "totalQuestions", "percentage", "grade", "completedAt"]
+    },
+    "CourseProgress": {
+      "title": "CourseProgress",
+      "description": "Student learning progress and completion count per course",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Course identifier"
+        },
+        "studentId": {
+          "type": "string",
+          "description": "Student ID"
+        },
+        "courseId": {
+          "type": "string",
+          "description": "Course identifier"
+        },
+        "completedWorkbookCount": {
+          "type": "number",
+          "description": "Count of answered practice questions"
+        },
+        "lastStudiedAt": {
+          "type": "string",
+          "description": "Timestamp of last study activity"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp of last progress update"
+        }
+      },
+      "required": ["id", "studentId", "courseId", "completedWorkbookCount", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/students/{studentId}": {
+      "schema": "StudentProfile",
+      "description": "Student registration and profile document"
+    },
+    "/students/{studentId}/quizAttempts/{attemptId}": {
+      "schema": "QuizAttempt",
+      "description": "Historical quiz attempts and exam scores for the student"
+    },
+    "/students/{studentId}/progress/{courseId}": {
+      "schema": "CourseProgress",
+      "description": "Course-specific learning progress and study metrics"
+    }
+  }
+}

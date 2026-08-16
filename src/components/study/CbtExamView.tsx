@@ -4,11 +4,13 @@ import {
   Clock, CheckCircle2, XCircle, Flag, RotateCcw, Award, ChevronLeft, 
   ChevronRight, AlertTriangle, BookOpen, ArrowLeft
 } from 'lucide-react';
+import { saveQuizAttempt } from '../../lib/quizService';
 
 interface CbtExamViewProps {
   course: CourseInfo;
   questions: Question[];
   onBackToDashboard?: () => void;
+  onExamStateChange?: (isActive: boolean) => void;
   soundEnabled: boolean;
 }
 
@@ -16,6 +18,7 @@ export const CbtExamView: React.FC<CbtExamViewProps> = ({
   course,
   questions,
   onBackToDashboard,
+  onExamStateChange,
   soundEnabled,
 }) => {
   // Course past questions
@@ -58,6 +61,15 @@ export const CbtExamView: React.FC<CbtExamViewProps> = ({
     setSelectedAnswers({});
     setFlaggedQuestions({});
   }, [course.id]);
+
+  // Report active exam status (hide secondary course banner when taking the test)
+  useEffect(() => {
+    const isTestActive = examStarted && !examSubmitted;
+    onExamStateChange?.(isTestActive);
+    return () => {
+      onExamStateChange?.(false);
+    };
+  }, [examStarted, examSubmitted, onExamStateChange]);
 
   // Play audio sound effects
   const playSound = useCallback((type: 'select' | 'submit' | 'timeWarning') => {
@@ -136,6 +148,33 @@ export const CbtExamView: React.FC<CbtExamViewProps> = ({
     setExamSubmitted(true);
     setShowSubmitConfirm(false);
     playSound('submit');
+
+    // Calculate metrics for cloud storage
+    const activeList = examQuestions.length > 0 ? examQuestions : coursePqQuestions;
+    let correct = 0;
+    activeList.forEach((q) => {
+      if (selectedAnswers[q.id] === q.correctAnswer) {
+        correct++;
+      }
+    });
+    const total = activeList.length;
+    const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+    const score70 = total > 0 ? Math.round((correct / total) * 70) : 0;
+    const grade = pct >= 70 ? 'A' : pct >= 60 ? 'B' : pct >= 50 ? 'C' : pct >= 45 ? 'D' : 'F';
+    const timeSpent = durationMinutes * 60 - timeRemaining;
+
+    saveQuizAttempt({
+      courseId: course.id,
+      mode: 'cbt',
+      score: correct,
+      totalQuestions: total,
+      percentage: pct,
+      scoreOver70: score70,
+      grade,
+      timeSpentSeconds: timeSpent,
+    }).catch((err) => {
+      console.warn('Could not save CBT attempt to cloud:', err);
+    });
   };
 
   // Calculate score based on current randomized exam questions
@@ -149,6 +188,8 @@ export const CbtExamView: React.FC<CbtExamViewProps> = ({
   });
 
   const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+  const scoreOver70 = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 70) : 0;
+  const scoreOver70Formatted = scoreOver70.toString();
   const answeredCount = Object.keys(selectedAnswers).length;
   const flaggedCount = Object.values(flaggedQuestions).filter(Boolean).length;
   const timeSpentSec = durationMinutes * 60 - timeRemaining;
@@ -322,12 +363,17 @@ export const CbtExamView: React.FC<CbtExamViewProps> = ({
 
             {/* Score & Grade Display */}
             <div className="flex items-center gap-3">
-              <div className="text-center p-3 rounded-xl bg-slate-900 text-white min-w-[100px] shadow-xs">
-                <div className="text-2xl sm:text-3xl font-black text-blue-400 font-mono">
-                  {percentage}%
+              <div className="text-center p-3 rounded-xl bg-slate-900 text-white min-w-[130px] shadow-xs">
+                {/* Score over 70 */}
+                <div className="text-xl sm:text-2xl font-black text-blue-400 font-mono flex items-baseline justify-center gap-1">
+                  <span>{scoreOver70Formatted}</span>
+                  <span className="text-xs font-semibold text-slate-400">/ 70</span>
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                  {correctCount} / {totalQuestions} Correct
+                {/* Score over total questions & percentage */}
+                <div className="text-[11px] text-slate-300 font-mono mt-1 pt-1 border-t border-slate-800 flex items-center justify-center gap-1">
+                  <span className="text-white font-bold">{correctCount}/{totalQuestions} Qs</span>
+                  <span className="text-slate-500">•</span>
+                  <span className="text-blue-300 font-semibold">{percentage}%</span>
                 </div>
               </div>
 
@@ -345,12 +391,12 @@ export const CbtExamView: React.FC<CbtExamViewProps> = ({
           {/* Quick Metrics row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4 text-center text-xs">
             <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
-              <span className="text-[10px] text-slate-500 font-bold uppercase block">Total</span>
-              <span className="text-sm font-bold text-slate-900 font-mono">{totalQuestions}</span>
+              <span className="text-[10px] text-slate-500 font-bold uppercase block">Raw Score</span>
+              <span className="text-sm font-bold text-slate-900 font-mono">{correctCount} / {totalQuestions}</span>
             </div>
             <div className="p-2.5 rounded-lg bg-blue-50 border border-blue-200">
-              <span className="text-[10px] text-blue-700 font-bold uppercase block">Correct</span>
-              <span className="text-sm font-bold text-blue-800 font-mono">{correctCount}</span>
+              <span className="text-[10px] text-blue-700 font-bold uppercase block">Score (Over 70)</span>
+              <span className="text-sm font-bold text-blue-800 font-mono">{scoreOver70Formatted} / 70</span>
             </div>
             <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200">
               <span className="text-[10px] text-rose-700 font-bold uppercase block">Missed</span>

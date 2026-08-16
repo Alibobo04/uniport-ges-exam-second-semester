@@ -1,6 +1,7 @@
 import React from 'react';
 import { CourseInfo, StudyMode } from '../types';
-import { BookOpen, ArrowLeft, Volume2, VolumeX, Layers, ChevronRight } from 'lucide-react';
+import { BookOpen, ArrowLeft, Volume2, VolumeX, Layers, ChevronRight, User, Cloud, GraduationCap } from 'lucide-react';
+import { useStudent } from '../context/StudentContext';
 
 interface HeaderProps {
   currentStep: 1 | 2;
@@ -21,6 +22,8 @@ export const Header: React.FC<HeaderProps> = ({
   soundEnabled,
   onToggleSound,
 }) => {
+  const { student } = useStudent();
+
   const getModeLabel = (mode: string) => {
     switch (mode) {
       case 'workbook':
@@ -59,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Right side controls */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           {/* Sound toggle button */}
           <button
             onClick={onToggleSound}
@@ -73,6 +76,29 @@ export const Header: React.FC<HeaderProps> = ({
               <VolumeX className="w-4 h-4 text-slate-500" />
             )}
           </button>
+
+          {/* Student Profile Pill */}
+          {student && (
+            <div
+              className="flex items-center gap-1.5 bg-slate-800/90 border border-slate-700 rounded-lg px-2.5 py-1 text-xs"
+              title={`Student: ${student.firstName} ${student.secondName} (${student.department})`}
+            >
+              <div className="w-5 h-5 rounded-full bg-blue-600/30 text-blue-400 flex items-center justify-center text-[10px] font-bold">
+                {student.firstName.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="font-semibold text-slate-200 text-[11px] leading-none">
+                  {student.firstName} {student.secondName}
+                </span>
+                <span className="text-[9px] text-slate-400 leading-none truncate max-w-[90px] sm:max-w-[120px]">
+                  {student.department}
+                </span>
+              </div>
+              <span title="Firestore Sync Active" className="ml-1 text-emerald-400 shrink-0">
+                <Cloud className="w-3 h-3" />
+              </span>
+            </div>
+          )}
 
           {/* Quick course switch */}
           {selectedCourse && (
@@ -93,35 +119,28 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Active Course & Mode Breadcrumbs Banner */}
       {selectedCourse && (
         <div className="bg-slate-950 border-t border-slate-800 px-4 py-1.5 text-xs">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap">
+          <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 overflow-x-auto">
+            <div className="flex items-center gap-1.5 text-slate-400 text-xs">
               <button
-                onClick={onNavigateHome}
-                className="text-slate-400 hover:text-white transition-colors"
+                onClick={onNavigateBack}
+                className="hover:text-slate-200 transition-colors flex items-center gap-1"
               >
-                Home
+                <span>Courses</span>
               </button>
-              <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
+              <ChevronRight className="w-3 h-3 text-slate-600" />
+              <span className="text-blue-400 font-semibold">{selectedCourse.code}</span>
+              <ChevronRight className="w-3 h-3 text-slate-600" />
+              <span className="text-white font-medium capitalize">
+                {getModeLabel(activeMode)}
+              </span>
+            </div>
 
-              <span className="px-2 py-0.5 rounded font-bold bg-blue-600/20 text-blue-300 border border-blue-500/30 text-[10px] uppercase">
+            <div className="text-[11px] text-slate-400 hidden sm:flex items-center gap-2">
+              <span className="bg-slate-800 px-2 py-0.5 rounded text-slate-300 font-mono">
                 {selectedCourse.level} Level
               </span>
-              <span className="font-bold text-white text-xs">
-                {selectedCourse.code}
-              </span>
-
-              {activeMode !== 'hub' && (
-                <>
-                  <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
-                  <span className="text-blue-400 font-semibold">
-                    {getModeLabel(activeMode)}
-                  </span>
-                </>
-              )}
-            </div>
-            <div className="hidden sm:flex items-center gap-2 text-slate-400 text-[11px]">
-              <Layers className="w-3.5 h-3.5 text-blue-400" />
-              <span>Question Drills & Timed Tests</span>
+              <span>•</span>
+              <span className="truncate max-w-[200px]">{selectedCourse.title}</span>
             </div>
           </div>
         </div>
@@ -129,5 +148,3 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-
-

@@ -6,6 +6,7 @@ import { LevelSelector } from './components/LevelSelector';
 import { StudyDashboard } from './components/StudyDashboard';
 import { Footer } from './components/Footer';
 import { AppRoute, parseHash, navigateTo, navigateBack } from './router';
+import { StudentProvider } from './context/StudentContext';
 
 export default function App() {
   const [route, setRoute] = useState<AppRoute>(() => parseHash(window.location.hash));
@@ -66,43 +67,45 @@ export default function App() {
   const isLandingPage = route.page === 'landing' || !selectedCourse;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-blue-600 selection:text-white">
-      {/* Navigation Header */}
-      <Header
-        currentStep={isLandingPage ? 1 : 2}
-        selectedCourse={selectedCourse}
-        activeMode={route.mode || 'hub'}
-        onNavigateHome={handleNavigateHome}
-        onNavigateBack={() => navigateBack({ page: 'landing' })}
-        soundEnabled={soundEnabled}
-        onToggleSound={handleToggleSound}
-      />
+    <StudentProvider>
+      <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-blue-600 selection:text-white">
+        {/* Navigation Header */}
+        <Header
+          currentStep={isLandingPage ? 1 : 2}
+          selectedCourse={selectedCourse}
+          activeMode={route.mode || 'hub'}
+          onNavigateHome={handleNavigateHome}
+          onNavigateBack={() => navigateBack({ page: 'landing' })}
+          soundEnabled={soundEnabled}
+          onToggleSound={handleToggleSound}
+        />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* LANDING PAGE: Course Selector */}
-        {isLandingPage ? (
-          <div>
-            <LevelSelector onSelectCourse={handleSelectCourse} />
-          </div>
-        ) : (
-          /* COURSE STUDY PAGE: Individual pages for each section/mode */
-          <div>
-            <StudyDashboard
-              course={selectedCourse}
-              activeMode={route.mode || 'hub'}
-              subMode={route.subMode}
-              onSelectMode={(mode, subMode) => handleSelectMode(selectedCourse.id, mode, subMode)}
-              onBackToLevels={() => navigateBack({ page: 'landing' })}
-              soundEnabled={soundEnabled}
-            />
-          </div>
-        )}
-      </main>
+        {/* Main Content Area */}
+        <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          {/* LANDING PAGE: Course Selector */}
+          {isLandingPage ? (
+            <div>
+              <LevelSelector onSelectCourse={handleSelectCourse} />
+            </div>
+          ) : (
+            /* COURSE STUDY PAGE: Individual pages for each section/mode */
+            <div>
+              <StudyDashboard
+                course={selectedCourse}
+                activeMode={route.mode || 'hub'}
+                subMode={route.subMode}
+                onSelectMode={(mode, subMode) => handleSelectMode(selectedCourse.id, mode, subMode)}
+                onBackToLevels={() => navigateBack({ page: 'landing' })}
+                soundEnabled={soundEnabled}
+              />
+            </div>
+          )}
+        </main>
 
-      {/* Footer */}
-      <Footer onSelectCourse={handleSelectCourse} />
-    </div>
+        {/* Footer */}
+        <Footer onSelectCourse={handleSelectCourse} />
+      </div>
+    </StudentProvider>
   );
 }
 

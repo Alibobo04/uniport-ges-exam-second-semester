@@ -41,7 +41,7 @@ export function parseHash(hash: string): AppRoute {
       page: 'course',
       courseId: courseIdStr as CourseId,
       mode,
-      subMode: subModeStr
+      subMode: subModeStr || undefined
     };
   }
 
