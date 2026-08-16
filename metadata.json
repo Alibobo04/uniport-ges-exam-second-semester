@@ -1,0 +1,6 @@
+{
+  "name": "UniPort GES Exam Preparation Portal",
+  "description": "Clean and fast quiz practice website for GES courses with practice questions, timed tests, and revision flashcards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
