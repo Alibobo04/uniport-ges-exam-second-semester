@@ -8,17 +8,21 @@ import { BookOpen, Clock, Sparkles, ArrowLeft, ChevronRight, Layers } from 'luci
 
 interface StudyDashboardProps {
   course: CourseInfo;
+  activeMode: StudyMode;
+  subMode?: string;
+  onSelectMode: (mode: StudyMode, subMode?: string) => void;
   onBackToLevels: () => void;
   soundEnabled: boolean;
 }
 
 export const StudyDashboard: React.FC<StudyDashboardProps> = ({
   course,
+  activeMode,
+  subMode,
+  onSelectMode,
   onBackToLevels,
   soundEnabled,
 }) => {
-  const [activeMode, setActiveMode] = useState<StudyMode>('hub');
-
   // Questions for current course
   const courseWorkbookQuestions = useMemo(
     () => WORKBOOK_QUESTIONS.filter((q) => q.courseId === course.id),
@@ -62,16 +66,17 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
           <button
             onClick={onBackToLevels}
             className="self-start md:self-auto text-xs font-semibold px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 border border-slate-700 shrink-0"
+            title="Return to course selection"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Choose Another Course</span>
           </button>
         </div>
 
-        {/* Navigation Tabs */}
+        {/* Navigation Tabs (each is its own URL page) */}
         <div className="mt-5 pt-4 border-t border-slate-800 flex items-center gap-2 overflow-x-auto pb-0.5">
           <button
-            onClick={() => setActiveMode('hub')}
+            onClick={() => onSelectMode('hub')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               activeMode === 'hub'
                 ? 'bg-white text-slate-900 shadow-xs'
@@ -83,7 +88,7 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveMode('workbook')}
+            onClick={() => onSelectMode('workbook')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               activeMode === 'workbook'
                 ? 'bg-blue-600 text-white shadow-xs'
@@ -96,7 +101,7 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveMode('cbt')}
+            onClick={() => onSelectMode('cbt')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               activeMode === 'cbt'
                 ? 'bg-blue-600 text-white shadow-xs'
@@ -109,7 +114,7 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveMode('flashcards')}
+            onClick={() => onSelectMode('flashcards')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               activeMode === 'flashcards'
                 ? 'bg-blue-600 text-white shadow-xs'
@@ -141,7 +146,7 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Option 1: Practice Questions */}
             <div
-              onClick={() => setActiveMode('workbook')}
+              onClick={() => onSelectMode('workbook')}
               className="bg-white rounded-xl border border-slate-200 hover:border-blue-500 p-5 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
               id="study-card-workbook"
             >
@@ -173,7 +178,7 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
 
             {/* Option 2: Past Questions */}
             <div
-              onClick={() => setActiveMode('cbt')}
+              onClick={() => onSelectMode('cbt')}
               className="bg-white rounded-xl border border-slate-200 hover:border-blue-500 p-5 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
               id="study-card-cbt"
             >
@@ -205,7 +210,7 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
 
             {/* Option 3: Flashcards & Summaries */}
             <div
-              onClick={() => setActiveMode('flashcards')}
+              onClick={() => onSelectMode('flashcards')}
               className="bg-white rounded-xl border border-slate-200 hover:border-blue-500 p-5 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
               id="study-card-flashcards"
             >
@@ -242,6 +247,9 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
         <WorkbookView
           course={course}
           questions={courseWorkbookQuestions}
+          initialSubMode={subMode as 'drill' | 'timed' | 'select'}
+          onSubModeChange={(newSubMode) => onSelectMode('workbook', newSubMode === 'select' ? undefined : newSubMode)}
+          onBackToDashboard={() => onSelectMode('hub')}
           soundEnabled={soundEnabled}
         />
       )}
@@ -250,6 +258,7 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
         <CbtExamView
           course={course}
           questions={cbtQuestions}
+          onBackToDashboard={() => onSelectMode('hub')}
           soundEnabled={soundEnabled}
         />
       )}
@@ -257,6 +266,9 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
       {activeMode === 'flashcards' && (
         <FlashcardsAndSummariesView
           course={course}
+          initialSubTab={subMode as 'flashcards' | 'summaries' | 'tips'}
+          onSubTabChange={(newTab) => onSelectMode('flashcards', newTab)}
+          onBackToDashboard={() => onSelectMode('hub')}
           soundEnabled={soundEnabled}
         />
       )}

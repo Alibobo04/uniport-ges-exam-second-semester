@@ -9,6 +9,9 @@ import {
 interface WorkbookViewProps {
   course: CourseInfo;
   questions: Question[];
+  initialSubMode?: WorkbookSubMode;
+  onSubModeChange?: (mode: WorkbookSubMode) => void;
+  onBackToDashboard?: () => void;
   soundEnabled: boolean;
 }
 
@@ -17,6 +20,9 @@ type WorkbookSubMode = 'select' | 'drill' | 'timed';
 export const WorkbookView: React.FC<WorkbookViewProps> = ({
   course,
   questions,
+  initialSubMode = 'select',
+  onSubModeChange,
+  onBackToDashboard,
   soundEnabled,
 }) => {
   // Ensure we strictly use only workbook questions for this course
@@ -25,7 +31,21 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
     [questions, course.id]
   );
 
-  const [subMode, setSubMode] = useState<WorkbookSubMode>('select');
+  const [subMode, setSubMode] = useState<WorkbookSubMode>(initialSubMode);
+
+  // Sync subMode when prop changes
+  useEffect(() => {
+    if (initialSubMode) {
+      setSubMode(initialSubMode);
+    }
+  }, [initialSubMode]);
+
+  const handleSetSubMode = (newMode: WorkbookSubMode) => {
+    setSubMode(newMode);
+    if (onSubModeChange) {
+      onSubModeChange(newMode);
+    }
+  };
 
   // ==========================================
   // PRACTICE DRILL STATE
@@ -275,7 +295,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Card 1: Practice Drills */}
           <div
-            onClick={() => setSubMode('drill')}
+            onClick={() => handleSetSubMode('drill')}
             className="bg-white rounded-xl border border-slate-200 hover:border-blue-500 p-6 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
             id="wb-mode-card-drills"
           >
@@ -313,7 +333,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
           {/* Card 2: Timed Quiz Mode */}
           <div
             onClick={() => {
-              setSubMode('timed');
+              handleSetSubMode('timed');
               setExamStarted(false);
               setExamSubmitted(false);
             }}
@@ -366,7 +386,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setSubMode('select')}
+                onClick={() => handleSetSubMode('select')}
                 className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-xs flex items-center gap-1 border border-slate-700"
                 title="Change Workbook Mode"
               >
@@ -628,7 +648,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
             </div>
 
             <button
-              onClick={() => setSubMode('select')}
+              onClick={() => handleSetSubMode('select')}
               className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors flex items-center gap-1 border border-slate-700"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -816,7 +836,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
             </div>
 
             <button
-              onClick={() => setSubMode('select')}
+              onClick={() => handleSetSubMode('select')}
               className="text-xs text-slate-600 hover:text-slate-900 font-semibold underline"
             >
               Back to Mode Selection

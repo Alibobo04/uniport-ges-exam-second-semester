@@ -2,18 +2,20 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { CourseInfo, Question } from '../../types';
 import { 
   Clock, CheckCircle2, XCircle, Flag, RotateCcw, Award, ChevronLeft, 
-  ChevronRight, AlertTriangle, BookOpen
+  ChevronRight, AlertTriangle, BookOpen, ArrowLeft
 } from 'lucide-react';
 
 interface CbtExamViewProps {
   course: CourseInfo;
   questions: Question[];
+  onBackToDashboard?: () => void;
   soundEnabled: boolean;
 }
 
 export const CbtExamView: React.FC<CbtExamViewProps> = ({
   course,
   questions,
+  onBackToDashboard,
   soundEnabled,
 }) => {
   // Course past questions
@@ -174,18 +176,31 @@ export const CbtExamView: React.FC<CbtExamViewProps> = ({
       <div className="max-w-2xl mx-auto space-y-5" id="cbt-start-screen">
         {/* Banner */}
         <div className="bg-slate-900 text-white rounded-xl p-5 border border-slate-800 shadow-xs">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-lg bg-blue-600 text-white">
-              <Clock className="w-5 h-5" />
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-600 text-white">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-white">
+                  {course.code} Past Questions
+                </h2>
+                <p className="text-xs text-slate-400">
+                  {coursePqQuestions.length} Past Questions Available
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-white">
-                {course.code} Past Questions
-              </h2>
-              <p className="text-xs text-slate-400">
-                {coursePqQuestions.length} Past Questions Available
-              </p>
-            </div>
+
+            {onBackToDashboard && (
+              <button
+                onClick={onBackToDashboard}
+                className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors flex items-center gap-1 border border-slate-700"
+                title="Back to all modes"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>All Modes</span>
+              </button>
+            )}
           </div>
           <p className="text-slate-300 text-xs leading-relaxed">
             Simulate realistic exam hall conditions with official past exam questions under a timed countdown. Answer review and detailed performance reports are generated upon submission.
@@ -349,13 +364,25 @@ export const CbtExamView: React.FC<CbtExamViewProps> = ({
 
           {/* Action Row */}
           <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-3 border-t border-slate-100">
-            <button
-              onClick={handleStartExam}
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow-xs transition-colors"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Retake Quiz</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleStartExam}
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow-xs transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Retake Quiz</span>
+              </button>
+
+              {onBackToDashboard && (
+                <button
+                  onClick={onBackToDashboard}
+                  className="px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center gap-1.5 transition-colors border border-slate-200"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>All Modes</span>
+                </button>
+              )}
+            </div>
 
             <span className="text-xs text-slate-500">
               Review answers and explanations below.

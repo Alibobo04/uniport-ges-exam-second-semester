@@ -3,19 +3,41 @@ import { CourseInfo, ChapterSummary } from '../../types';
 import { FLASHCARDS, COURSE_SUMMARIES } from '../../data/coursesData';
 import { 
   RotateCw, ChevronLeft, ChevronRight, CheckCircle2, 
-  BookOpen, Layers, Shuffle, Lightbulb, Check
+  BookOpen, Layers, Shuffle, Lightbulb, Check, ArrowLeft
 } from 'lucide-react';
 
 interface FlashcardsAndSummariesViewProps {
   course: CourseInfo;
+  initialSubTab?: 'flashcards' | 'summaries' | 'tips';
+  onSubTabChange?: (tab: 'flashcards' | 'summaries' | 'tips') => void;
+  onBackToDashboard?: () => void;
   soundEnabled: boolean;
 }
 
 export const FlashcardsAndSummariesView: React.FC<FlashcardsAndSummariesViewProps> = ({
   course,
+  initialSubTab = 'flashcards',
+  onSubTabChange,
+  onBackToDashboard,
   soundEnabled,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'flashcards' | 'summaries' | 'tips'>('flashcards');
+  const [activeSubTab, setActiveSubTab] = useState<'flashcards' | 'summaries' | 'tips'>(
+    initialSubTab === 'summaries' || initialSubTab === 'tips' ? initialSubTab : 'flashcards'
+  );
+
+  // Sync with prop when URL changes
+  React.useEffect(() => {
+    if (initialSubTab && (initialSubTab === 'flashcards' || initialSubTab === 'summaries' || initialSubTab === 'tips')) {
+      setActiveSubTab(initialSubTab);
+    }
+  }, [initialSubTab]);
+
+  const handleSetSubTab = (tab: 'flashcards' | 'summaries' | 'tips') => {
+    setActiveSubTab(tab);
+    if (onSubTabChange) {
+      onSubTabChange(tab);
+    }
+  };
 
   // Flashcards state
   const courseCards = FLASHCARDS.filter((fc) => fc.courseId === course.id);
@@ -77,6 +99,17 @@ export const FlashcardsAndSummariesView: React.FC<FlashcardsAndSummariesViewProp
       <div className="bg-slate-900 text-white rounded-xl p-4 border border-slate-800 shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
+            {onBackToDashboard && (
+              <button
+                onClick={onBackToDashboard}
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-xs flex items-center gap-1 border border-slate-700 mr-1"
+                title="Back to all modes"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">All Modes</span>
+              </button>
+            )}
+
             <div className="p-2 rounded-lg bg-blue-600 text-white">
               <Layers className="w-5 h-5" />
             </div>
@@ -93,7 +126,7 @@ export const FlashcardsAndSummariesView: React.FC<FlashcardsAndSummariesViewProp
           {/* Sub-tabs */}
           <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
             <button
-              onClick={() => setActiveSubTab('flashcards')}
+              onClick={() => handleSetSubTab('flashcards')}
               className={`px-3 py-1.5 rounded-md font-semibold transition-all flex items-center gap-1.5 text-xs ${
                 activeSubTab === 'flashcards'
                   ? 'bg-blue-600 text-white shadow-xs'
@@ -105,7 +138,7 @@ export const FlashcardsAndSummariesView: React.FC<FlashcardsAndSummariesViewProp
             </button>
 
             <button
-              onClick={() => setActiveSubTab('summaries')}
+              onClick={() => handleSetSubTab('summaries')}
               className={`px-3 py-1.5 rounded-md font-semibold transition-all flex items-center gap-1.5 text-xs ${
                 activeSubTab === 'summaries'
                   ? 'bg-blue-600 text-white shadow-xs'
@@ -117,7 +150,7 @@ export const FlashcardsAndSummariesView: React.FC<FlashcardsAndSummariesViewProp
             </button>
 
             <button
-              onClick={() => setActiveSubTab('tips')}
+              onClick={() => handleSetSubTab('tips')}
               className={`px-3 py-1.5 rounded-md font-semibold transition-all flex items-center gap-1.5 text-xs ${
                 activeSubTab === 'tips'
                   ? 'bg-blue-600 text-white shadow-xs'
