@@ -75,7 +75,7 @@ export default function App() {
           selectedCourse={selectedCourse}
           activeMode={route.mode || 'hub'}
           onNavigateHome={handleNavigateHome}
-          onNavigateBack={() => navigateBack({ page: 'landing' })}
+          onNavigateBack={handleNavigateHome}
           soundEnabled={soundEnabled}
           onToggleSound={handleToggleSound}
         />
@@ -95,7 +95,7 @@ export default function App() {
                 activeMode={route.mode || 'hub'}
                 subMode={route.subMode}
                 onSelectMode={(mode, subMode) => handleSelectMode(selectedCourse.id, mode, subMode)}
-                onBackToLevels={() => navigateBack({ page: 'landing' })}
+                onBackToLevels={handleNavigateHome}
                 soundEnabled={soundEnabled}
               />
             </div>

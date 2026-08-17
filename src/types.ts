@@ -32,19 +32,27 @@ export interface Flashcard {
   id: string;
   courseId: CourseId;
   term: string;
+  conceptQuestion?: string;
   definition: string;
   category: string;
   keyPoints?: string[];
   example?: string;
+  source?: 'Workbook' | 'PastQuestion' | 'Concept';
+  topic?: string;
+  chapter?: string;
+  correctAnswerText?: string;
 }
 
 export interface ChapterSummary {
   id: string;
   chapterNumber: number;
   title: string;
+  topicSubtitle?: string;
   summaryBullets: string[];
   keyDefinitions: { term: string; meaning: string }[];
   examHotspotTips: string[];
+  keyDatesAndFormulas?: { label: string; detail: string }[];
+  cbtPastQuestionHotspots?: { questionFocus: string; verifiedAnswer: string; trapAlert?: string }[];
 }
 
 export interface QuizState {

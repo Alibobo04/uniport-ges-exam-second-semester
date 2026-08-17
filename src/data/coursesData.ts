@@ -4,6 +4,7 @@ import { GES112_CBT_TEST_QUESTIONS } from './ges112CbtQuestions';
 import { GES212_PRACTICE_QUESTIONS } from './ges212Questions';
 import { GES212_CBT_TEST_QUESTIONS } from './ges212CbtQuestions';
 import { GES300_PRACTICE_QUESTIONS } from './ges300Questions';
+import { createFlashcardFromQuestion } from './flashcardExtractor';
 
 export const COURSES: Record<CourseId, CourseInfo> = {
   ges112: {
@@ -162,52 +163,67 @@ export const PAST_QUESTIONS: Question[] = [
   }
 ].map(sanitizeQuestion);
 
-export const FLASHCARDS: Flashcard[] = [
+const CORE_CONCEPT_FLASHCARDS: Flashcard[] = [
   // ================= GES 112 FLASHCARDS =================
   {
     id: 'fc_112_1',
     courseId: 'ges112',
     term: 'Nok Culture',
-    definition: 'Ancient Iron Age civilization in Kaduna State (c. 500 BC – 200 AD) famous for stylized terracotta figurines with hollow eyes, mouths, and flared nostrils.',
+    conceptQuestion: 'What are the defining archaeological characteristics, periodization, and artistic significance of Nok Culture?',
+    definition: 'Ancient Iron Age civilization in Kaduna State (c. 500 BC – 200 AD) famous for stylized terracotta figurines with hollow eyes, mouths, and flared nostrils, representing the oldest known terracotta art in Sub-Saharan Africa.',
     category: 'Archaeology & Heritage',
-    keyPoints: ['Dated 500 BC – 200 AD', 'Oldest known terracotta in Sub-Saharan Africa', 'Pioneered early iron smelting in West Africa'],
-    example: 'Discovery in 1928 by tin miners near Nok village.'
+    source: 'Concept',
+    topic: 'Archaeology & Pre-history',
+    keyPoints: ['Dated c. 500 BC – 200 AD', 'Oldest known terracotta sculptures in Sub-Saharan Africa', 'Pioneered early iron smelting technology in West Africa'],
+    example: 'Discovered in 1928 by tin miners near Nok village in Kaduna state.'
   },
   {
     id: 'fc_112_2',
     courseId: 'ges112',
     term: '1914 Amalgamation',
-    definition: 'The British administrative unification of Northern and Southern Protectorates into modern Nigeria under Governor-General Sir Frederick Lugard.',
+    conceptQuestion: 'What was the 1914 Amalgamation, who was its architect, and what was the British imperial motive?',
+    definition: 'The British administrative unification of the Northern and Southern Protectorates into modern Nigeria on January 1, 1914, executed under Governor-General Sir Frederick Lugard primarily to offset the northern administrative deficit using southern customs revenues.',
     category: 'Colonial History',
-    keyPoints: ['Date: January 1, 1914', 'Initiator: Lord Frederick Lugard', 'Economic motive: Subsidize northern deficit with southern customs revenue'],
-    example: 'Creation of a single administrative territory called Nigeria.'
+    source: 'Concept',
+    topic: 'Colonial Evolution & Amalgamation',
+    keyPoints: ['Date: January 1, 1914', 'Architect: Sir Frederick Lugard', 'Economic Motive: Subsidize northern budget deficits with southern trade surplus'],
+    example: 'Marked the political birth of Nigeria as a single geo-political entity.'
   },
   {
     id: 'fc_112_3',
     courseId: 'ges112',
-    term: 'Igbo-Ukwu Artifacts',
-    definition: '9th-century AD archaeological site in Anambra state showcasing peerless lost-wax (cire perdue) bronze casting with intricate geometric beads and roped pots.',
+    term: 'Igbo-Ukwu Bronze Artifacts',
+    conceptQuestion: 'What did the archaeological discoveries by Thurstan Shaw at Igbo-Ukwu reveal about 9th-century Nigerian metallurgy?',
+    definition: '9th-century AD archaeological site in Anambra state excavated by Prof. Thurstan Shaw in 1959, showcasing peerless lost-wax (cire perdue) bronze casting with intricate geometric beads, roped pots, and ceremonial regalia associated with the Eze Nri monarchy.',
     category: 'Archaeology & Heritage',
-    keyPoints: ['Excavated by Prof. Thurstan Shaw in 1959', '9th Century AD chronology', 'Proves indigenous high metallurgical technology'],
+    source: 'Concept',
+    topic: 'Archaeological Centers',
+    keyPoints: ['Excavated by Prof. Thurstan Shaw in 1959', 'Dated to 9th Century AD', 'Proves indigenous high-temperature metallurgical mastery independent of external influence'],
     example: 'Famous roped bronze pot and ceremonial staff heads.'
   },
   {
     id: 'fc_112_4',
     courseId: 'ges112',
     term: 'Oyomesi Council',
-    definition: 'The supreme council of seven hereditary chiefs in the Old Oyo Empire led by the Bashorun who served as kingmakers and checks on the Alaafin.',
+    conceptQuestion: 'What was the constitutional function and institutional checks exerted by the Oyomesi in Old Oyo?',
+    definition: 'The supreme council of seven hereditary noble kingmakers in the Old Oyo Empire led by the Bashorun. They served as a vital constitutional check on the monarch (Alaafin), with the authority to reject an autocratic ruler by presenting an empty calabash.',
     category: 'Traditional Governance',
-    keyPoints: ['Headed by the Bashorun', 'Could reject an autocratic Alaafin with an empty calabash (symbol of self-sacrifice)', 'Maintained balance of power'],
-    example: 'Exemplifies pre-colonial constitutional checks and balances.'
+    source: 'Concept',
+    topic: 'Yoruba Political Institutions',
+    keyPoints: ['Headed by the Bashorun (Prime Minister)', 'Maintained pre-colonial constitutional balance of power', 'Could mandate an authoritarian Alaafin to commit ritual suicide via an empty calabash'],
+    example: 'Classic institutional check-and-balance model in African traditional governance.'
   },
   {
     id: 'fc_112_5',
     courseId: 'ges112',
     term: 'Canoe House System (Wari)',
-    definition: 'A flexible socio-political and economic trading unit in pre-colonial Niger Delta city-states (Bonny, Nembe, Kalabari, Opobo) based on maritime trade and military defense.',
+    conceptQuestion: 'What was the Canoe House System in the Niger Delta and how did it foster commercial and military strength?',
+    definition: 'A flexible socio-political and economic trading corporation in pre-colonial Niger Delta coastal city-states (Bonny, Nembe, Kalabari, Opobo) organized around trade canoes, maritime commerce, and military defense, allowing talented individuals upward social mobility regardless of birth status.',
     category: 'Niger Delta Studies',
-    keyPoints: ['Facilitated Palm Oil and coastal commerce', 'Enabled upward social mobility for skilled individuals', 'Headed by a dynamic House Chief'],
-    example: 'Led by prominent merchant kings like King Jaja of Opobo.'
+    source: 'Concept',
+    topic: 'Niger Delta Pre-Colonial Society',
+    keyPoints: ['Organized for maritime Palm Oil commerce and fleet defense', 'Enabled upward social mobility based on merit and wealth', 'Headed by a dynamic House Chief elected by house members'],
+    example: 'Exemplified by King Jaja of Opobo rising from humble beginnings to head the Anna Pepple House.'
   },
 
   // ================= GES 212.2 FLASHCARDS =================
@@ -215,272 +231,132 @@ export const FLASHCARDS: Flashcard[] = [
     id: 'fc_212_1',
     courseId: 'ges212',
     term: 'Epistemology',
-    definition: 'The core branch of philosophy that investigates the nature, origin, justification, conditions, and boundaries of human knowledge.',
+    conceptQuestion: 'What is Epistemology and what fundamental philosophical problems does it investigate?',
+    definition: 'The core branch of philosophy (from Greek "Episteme" meaning knowledge, and "Logos" meaning study) that investigates the origin, nature, methods, scope, justification, and limits of human knowledge.',
     category: 'Core Branches of Philosophy',
-    keyPoints: ['Derived from Greek "Episteme" (Knowledge)', 'Examines Rationalism vs Empiricism', 'Analyzes Justified True Belief (JTB)'],
-    example: 'Debate: Does knowledge come primarily from reasoning or five senses?'
+    source: 'Concept',
+    topic: 'Epistemology & Sources of Knowledge',
+    keyPoints: ['Explores Empiricism (Sense experience) vs. Rationalism (Reason/Innate ideas)', 'Analyzes Justified True Belief (JTB) paradigm', 'Investigates skepticism, certainty, and cognitive validity'],
+    example: 'Core Question: "How do we know that our beliefs about the physical world are actually true?"'
   },
   {
     id: 'fc_212_2',
     courseId: 'ges212',
     term: 'Argumentum Ad Hominem',
-    definition: 'An informal fallacy committed when an argument attacks the opponent’s personal character or background instead of dissecting their claim.',
+    conceptQuestion: 'What defines the Argumentum Ad Hominem fallacy and why is it logically defective?',
+    definition: 'An informal fallacy of relevance (Latin for "Argument against the Person") committed when an arguer attacks the opponent’s personal character, motives, background, or physical traits instead of addressing and refuting the logical validity of their actual claim.',
     category: 'Logical Fallacies',
-    keyPoints: ['Latin for "Against the Man"', 'Fallacy of Relevance', 'Diverts focus from logical substance to personal mudslinging'],
-    example: '"You cannot trust his economic plan because he dropped out of school."'
+    source: 'Concept',
+    topic: 'Informal Fallacies',
+    keyPoints: ['Abusive Ad Hominem: Direct insult to moral character', 'Circumstantial Ad Hominem: Discrediting an argument based on personal interest/vested stakes', 'Tu Quoque: Hypocrisy rebuttal ("You do it too!")'],
+    example: '"You cannot accept Dr. Musa’s economic policy proposal because he has gone through a messy divorce."'
   },
   {
     id: 'fc_212_3',
     courseId: 'ges212',
-    term: 'Soundness (in Deductive Logic)',
-    definition: 'A deductive argument is sound if and only if it is logically valid and all of its constituent premises are factually true.',
+    term: 'Soundness in Deductive Logic',
+    conceptQuestion: 'What is the exact distinction between Validity and Soundness in deductive reasoning?',
+    definition: 'In formal deductive logic, an argument is valid if its logical structure guarantees that if the premises were true, the conclusion could not be false. An argument is sound if and only if it is BOTH structurally valid AND all of its constituent premises are factually true in reality.',
     category: 'Formal Logic',
-    keyPoints: ['Soundness = Validity + True Premises', 'Guarantees the absolute truth of the conclusion', 'Applies strictly to deductive arguments'],
-    example: 'Premise 1: All humans are mortal. Premise 2: Socrates is human. Conclusion: Socrates is mortal.'
+    source: 'Concept',
+    topic: 'Deductive Reasoning & Validity',
+    keyPoints: ['Soundness = Logical Validity + Factually True Premises', 'An argument can be structurally valid even with false premises, but it will be unsound', 'Soundness guarantees absolute truth of the conclusion'],
+    example: 'Sound Argument: "All humans are mortal. Socrates is human. Therefore, Socrates is mortal."'
   },
   {
     id: 'fc_212_4',
     courseId: 'ges212',
     term: 'Existence Precedes Essence',
-    definition: 'The fundamental premise of Sartre’s Existentialism asserting humans first exist, encounter the world, and subsequently define their essence by their decisions.',
+    conceptQuestion: 'What does the existentialist dictum "Existence precedes essence" mean for human freedom and responsibility?',
+    definition: 'The foundational thesis of Atheistic Existentialism (championed by Jean-Paul Sartre) asserting that human beings first exist in the world, encounter themselves, and only then define their nature, values, and purpose through their ongoing conscious choices and actions, rather than being determined by a pre-existing divine template.',
     category: 'Existential Philosophy',
-    keyPoints: ['Associated with Jean-Paul Sartre & Albert Camus', 'Rejects pre-determined human purpose', 'Emphasizes radical free will and personal responsibility'],
-    example: 'You are what you choose to make of yourself through actions.'
+    source: 'Concept',
+    topic: 'Human Existence & Existentialism',
+    keyPoints: ['Core doctrine of Jean-Paul Sartre and Simone de Beauvoir', 'Humans have radical free will and cannot blame fate or human nature', 'Condemned to be free: Full accountability for all personal choices'],
+    example: '"Man is nothing else but what he makes of himself through deliberate action."'
   },
   {
     id: 'fc_212_5',
     courseId: 'ges212',
     term: 'Categorical Syllogism',
-    definition: 'A deductive argument containing exactly three categorical propositions (Major Premise, Minor Premise, Conclusion) and three terms (Major, Minor, Middle).',
+    conceptQuestion: 'What constitutes the standard form and term structure of a Categorical Syllogism?',
+    definition: 'A formal deductive argument consisting of exactly three categorical propositions (Major Premise, Minor Premise, and Conclusion) containing exactly three terms: Major Term (predicate of conclusion), Minor Term (subject of conclusion), and Middle Term (appears in both premises but never in the conclusion).',
     category: 'Formal Logic',
-    keyPoints: ['Formulated by Aristotle', 'Middle term must be distributed at least once', 'Valid forms tested via Venn Diagrams or Rules of Syllogism'],
-    example: 'All UniPort students study GES; Joy is a UniPort student; Therefore Joy studies GES.'
+    source: 'Concept',
+    topic: 'Aristotelian Logic',
+    keyPoints: ['Formulated by Aristotle in the Organon', 'Middle term must be distributed at least once to avoid Undistributed Middle Fallacy', 'No conclusion follows from two negative or two particular premises'],
+    example: 'Major: All mammals breathe air. Minor: All whales are mammals. Conclusion: All whales breathe air.'
   },
 
   // ================= GES 300.2 FLASHCARDS =================
   {
     id: 'fc_300_1',
     courseId: 'ges300',
-    term: 'The 4 Ps of Marketing',
-    definition: 'The foundational marketing mix framework consisting of Product, Price, Place (distribution), and Promotion to successfully reach target customers.',
+    term: 'The 4 Ps Marketing Mix',
+    conceptQuestion: 'What are the 4 Ps of Marketing and how do they function together in venture commercialization?',
+    definition: 'The foundational operational marketing framework formulated by E. Jerome McCarthy comprising Product (value proposition, branding, packaging), Price (costing, pricing strategy, terms), Place (distribution channels, logistics, retail outlets), and Promotion (advertising, direct selling, digital marketing, public relations).',
     category: 'Marketing Strategies',
-    keyPoints: ['Formulated by E. Jerome McCarthy', 'Product: Features & Benefits', 'Price: Cost & Margins', 'Place: Distribution channels', 'Promotion: Advertising & Public Relations'],
-    example: 'Setting an affordable student price for a laundry service on UniPort Choba campus.'
+    source: 'Concept',
+    topic: 'Marketing Mix & Strategies',
+    keyPoints: ['Product: Goods or services meeting customer needs', 'Price: Strategy determining revenue margins (e.g. penetration vs skimming)', 'Place: Channel delivering product to the consumer', 'Promotion: Communication raising awareness and driving sales'],
+    example: 'Packaging affordable campus-sized detergent (Product) sold near student hostels (Place) with social media promo (Promotion) at ₦500 introductory rate (Price).'
   },
   {
     id: 'fc_300_2',
     courseId: 'ges300',
     term: 'Bootstrapping',
-    definition: 'Starting and growing a venture using only personal resources, lean operational expenses, and customer revenue without relying on external bank loans or venture capital.',
+    conceptQuestion: 'What is Bootstrapping in entrepreneurship and what are its core advantages and risks?',
+    definition: 'Building and scaling a new enterprise exclusively using personal savings, sweat equity, frugal operations, and reinvested customer sales revenues without relying on external bank debt, angel investors, or venture capital equity dilution.',
     category: 'Venture Financing',
-    keyPoints: ['Preserves 100% founder equity', 'Requires extreme financial discipline', 'Lowers financial leverage risk'],
-    example: 'Using personal savings and early client deposits to buy the first POS machine.'
+    source: 'Concept',
+    topic: 'Financing & Capital Sources',
+    keyPoints: ['Retains 100% equity ownership and decision-making control in founder hands', 'Enforces strict cash discipline and lean operational budgeting', 'Eliminates debt servicing pressure during volatile startup phases'],
+    example: 'Launching an online UniPort tutorial channel using a personal smartphone and free software before buying professional studio cameras with course fees.'
   },
   {
     id: 'fc_300_3',
     courseId: 'ges300',
-    term: 'Feasibility Study',
-    definition: 'A rigorous evaluation of a business idea to determine its market viability, technical capability, financial profitability, and organizational feasibility before launch.',
+    term: 'Feasibility Study vs. Business Plan',
+    conceptQuestion: 'How does a Feasibility Study differ from a formal Business Plan in venture creation?',
+    definition: 'A Feasibility Study is an investigative analytical assessment conducted BEFORE launching a venture to determine whether the idea is viable across market, technical, operational, legal, and financial dimensions (answers "Should we proceed?"). A Business Plan is an operational roadmap drafted AFTER feasibility is confirmed (answers "How will we execute and scale?").',
     category: 'Business Planning',
-    keyPoints: ['Assesses market demand and competition', 'Calculates projected ROI and payback period', 'Prevents costly capital misallocation'],
-    example: 'Surveying students at Abuja campus before leasing an off-campus hostel printing press.'
+    source: 'Concept',
+    topic: 'Feasibility & Business Plans',
+    keyPoints: ['Feasibility Study = Go/No-Go decision filter', 'Business Plan = Strategic execution manual and investor funding document', 'Feasibility prevents committing capital to flawed business models'],
+    example: 'Assessing whether off-campus students will pay for a night-time bike shuttle before buying 5 motorcycles.'
   },
   {
     id: 'fc_300_4',
     courseId: 'ges300',
-    term: 'Corporate Affairs Commission (CAC)',
-    definition: 'The Nigerian statutory body established under CAMA responsible for registering business names, incorporating companies, and regulating business entities in Nigeria.',
+    term: 'Corporate Affairs Commission (CAC) & CAMA 2020',
+    conceptQuestion: 'What is the role of CAC and what key reforms were introduced by CAMA 2020 for Nigerian startups?',
+    definition: 'The Corporate Affairs Commission (CAC) is the statutory body regulating the formation and management of companies in Nigeria under CAMA. The Companies and Allied Matters Act (CAMA 2020) revolutionized startup formation by allowing a single individual to incorporate a Private Limited Liability Company (Ltd), eliminating statutory common seals, and enabling full digital incorporation.',
     category: 'Legal Regulations',
-    keyPoints: ['Administers Companies and Allied Matters Act (CAMA 2020)', 'Issues Certificate of Incorporation and RC/BN numbers', 'Allows online single-director registration'],
-    example: 'Registering "Choba Campus Logistics Enterprise" as a Business Name.'
+    source: 'Concept',
+    topic: 'Business Registration & CAMA',
+    keyPoints: ['CAMA 2020 allows 1-person Private Limited Liability Companies', 'Eliminates mandatory company seal requirement', 'CAC operates the digital Company Registration Portal (CRP)'],
+    example: 'A sole founder registering a software firm as a Limited Liability Company on cac.gov.ng without needing a co-director.'
   },
   {
     id: 'fc_300_5',
     courseId: 'ges300',
     term: 'Break-Even Point (BEP)',
-    definition: 'The exact sales volume where total sales revenue equals total operating costs (Fixed Costs + Variable Costs), resulting in zero net profit and zero net loss.',
+    conceptQuestion: 'What is the Break-Even Point (BEP), what is its mathematical formula, and why is it vital for entrepreneurs?',
+    definition: 'The specific operational sales volume where Total Sales Revenue equals Total Operating Costs (Fixed Costs + Variable Costs), resulting in zero net profit and zero net loss. Sales beyond the BEP generate operational profit; sales below represent an operating loss.',
     category: 'Financial Management',
-    keyPoints: ['Formula: BEP (units) = Fixed Costs / (Selling Price per unit - Variable Cost per unit)', 'Identifies safety margin', 'Essential for pricing strategy'],
-    example: 'If fixed rent is ₦50,000 and contribution margin per bag is ₦1,000, BEP is 50 bags.'
+    source: 'Concept',
+    topic: 'Costing & Break-Even Analysis',
+    keyPoints: ['Formula (Units): Fixed Costs ÷ (Unit Selling Price - Unit Variable Cost)', 'Contribution Margin = Selling Price - Variable Cost per unit', 'Establishes the minimum production target necessary for venture solvency'],
+    example: 'If fixed monthly rent & equipment costs are ₦100,000 and contribution margin is ₦2,000 per unit, BEP = 50 units.'
   }
 ];
 
-export const COURSE_SUMMARIES: Record<CourseId, ChapterSummary[]> = {
-  ges112: [
-    {
-      id: 'sum_112_1',
-      chapterNumber: 1,
-      title: 'Geographical Environment & Culture Zones of Nigeria',
-      summaryBullets: [
-        'Nigeria is situated in West Africa between latitudes 4°N and 14°N, characterized by diverse vegetation zones.',
-        'The Southern Mangrove & Rainforest Zones receive heavy precipitation and traditionally cultivate root crops like yams, cassava, and oil palm.',
-        'The Guinea and Sudan Savanna zones of Middle Belt and North specialize in grain crops (millet, sorghum, maize) and cattle rearing.',
-        'Geographical diversity fostered vibrant pre-colonial inter-regional trade (e.g., salt, kolanuts, cattle, dried fish, iron tools).'
-      ],
-      keyDefinitions: [
-        { term: 'Culture Zone', meaning: 'A geographical region sharing similar cultural traits, economic patterns, and environmental adaptations.' },
-        { term: 'Ecological Complementarity', meaning: 'The mutual trade exchange between savanna grain producers and forest root crop producers.' }
-      ],
-      examHotspotTips: [
-        'Remember that Kolanut was traded from the southern Yoruba forests to the northern Hausa states, while cattle and leather moved south.',
-        'Note the distinction between Guinea Savanna (tall grasses/scattered trees) and Sudan Savanna (shorter grass, cereal belts).'
-      ]
-    },
-    {
-      id: 'sum_112_2',
-      chapterNumber: 2,
-      title: 'Archaeological Centers: Nok, Ife, Benin & Igbo-Ukwu',
-      summaryBullets: [
-        'Nok Culture (500 BC - 200 AD, Kaduna state): Renowned for stylized terracotta heads and pioneering iron smelting.',
-        'Ife Bronzes & Terracottas (11th-15th century AD): Highly naturalistic portraits depicting Oonis of Ife.',
-        'Benin Art: Masterful brass castings commemorating the Oba and Queen Mother (Iyoba), heavily pillaged in the 1897 British punitive expedition.',
-        'Igbo-Ukwu (9th century AD): Excavated by Thurstan Shaw, proving early lost-wax bronze casting and elaborate beaded burial chambers.'
-      ],
-      keyDefinitions: [
-        { term: 'Lost-Wax (Cire Perdue)', meaning: 'An ancient metallurgical casting technique where molten bronze replaces a wax mold.' },
-        { term: 'Terracotta', meaning: 'Baked brownish-red unglazed clay used for historic sculptures.' }
-      ],
-      examHotspotTips: [
-        'CBT question alert: Igbo-Ukwu is dated to the 9th Century AD (earlier than Ife and Benin).',
-        'Nok terracotta features distinctive triangular perforated eye pupils and flared nostrils.'
-      ]
-    },
-    {
-      id: 'sum_112_3',
-      chapterNumber: 3,
-      title: 'Pre-Colonial Socio-Political Institutions',
-      summaryBullets: [
-        'Hausa/Fulani Emirates: Centralized caliphate administration headed by the Emir with officials like Waziri, Madawaki, Galadima, Sarkin Fada.',
-        'Old Oyo Empire: Constitutional monarch (Alaafin) checked by the Oyomesi council headed by the Bashorun and religious sanction by the Ogboni.',
-        'Igbo Traditional Democracy: Segmentary/acephalous governance with council of elders (Ndichie), age grades, Ozo titleholders, and village assembly.',
-        'Niger Delta City-States: Canoe House System (Wari) based on maritime mercantile trade and naval defense.'
-      ],
-      keyDefinitions: [
-        { term: 'Acephalous Society', meaning: 'A decentralized, stateless community functioning through consensual council democracy without a single supreme king.' },
-        { term: 'Wari (Canoe House)', meaning: 'A socio-political and commercial maritime organization in Niger Delta city-states.' }
-      ],
-      examHotspotTips: [
-        'Bashorun led the 7 Oyomesi kingmakers who held the power to reject an Alaafin.',
-        'The warrant chief system failed in Igbo land because it contradicted their decentralized democratic norms.'
-      ]
-    }
-  ],
-  ges212: [
-    {
-      id: 'sum_212_1',
-      chapterNumber: 1,
-      title: 'Introduction to Philosophy & Epistemology',
-      summaryBullets: [
-        'Philosophy originated from the Greek words "Philein" (to love) and "Sophia" (wisdom), signifying critical reflection and pursuit of fundamental truth.',
-        'Epistemology investigates the definition, origin, structure, and limits of knowledge.',
-        'Rationalism (Descartes, Spinoza, Leibniz) argues reason and innate ideas are the true source of knowledge.',
-        'Empiricism (Locke, Berkeley, Hume) claims all knowledge originates from sensory experience (Tabula Rasa).'
-      ],
-      keyDefinitions: [
-        { term: 'Epistemology', meaning: 'The theory of knowledge regarding what distinguishes justified belief from opinion.' },
-        { term: 'Tabula Rasa', meaning: 'John Locke’s metaphor of the human mind as a blank slate at birth, written upon by experience.' }
-      ],
-      examHotspotTips: [
-        'Distinguish Descartes (Rationalist - "Cogito Ergo Sum") from John Locke (Empiricist - Tabula Rasa).',
-        'The four main branches of philosophy: Epistemology, Metaphysics, Ethics/Axiology, and Logic.'
-      ]
-    },
-    {
-      id: 'sum_212_2',
-      chapterNumber: 2,
-      title: 'Formal Logic, Syllogisms & Truth Tables',
-      summaryBullets: [
-        'Logic is the systematic study of the principles of valid reasoning and sound inference.',
-        'Deductive argument: If premises are true, the conclusion is guaranteed to be true (evaluated by Validity and Soundness).',
-        'Inductive argument: Premises provide probabilistic support for the conclusion (evaluated by Strength and Cogency).',
-        'Propositional connectors: Conjunction (∧), Disjunction (∨), Negation (~), Conditional (→), Biconditional (↔).'
-      ],
-      keyDefinitions: [
-        { term: 'Validity', meaning: 'A structural property of deductive arguments where true premises logically necessitate a true conclusion.' },
-        { term: 'Soundness', meaning: 'When a deductive argument is both formally valid and its premises are factually true.' }
-      ],
-      examHotspotTips: [
-        'Conjunction (P ∧ Q) is only True when BOTH P and Q are True.',
-        'Conditional (P → Q) is ONLY False when the antecedent P is True and consequent Q is False.'
-      ]
-    },
-    {
-      id: 'sum_212_3',
-      chapterNumber: 3,
-      title: 'Informal Fallacies & Human Existence',
-      summaryBullets: [
-        'Fallacies of Relevance introduce irrelevant psychological or emotional premises to mislead reasoning.',
-        'Ad Hominem (attacking the person), Ad Populum (bandwagon appeal), Ad Baculum (appeal to force/threat), Ad Misericordiam (appeal to pity).',
-        'Petitio Principii (Begging the question / circular reasoning): Assuming the conclusion in the premises.',
-        'Human Existence: Existentialism explores freedom, alienation, authentic existence, and responsibility (Sartre: Existence precedes essence).'
-      ],
-      keyDefinitions: [
-        { term: 'Informal Fallacy', meaning: 'An error in reasoning stemming from flaws in content, context, or linguistic ambiguity rather than structural form.' },
-        { term: 'Existentialism', meaning: 'A philosophical approach emphasizing individual freedom, choice, and personal responsibility in finding meaning in life.' }
-      ],
-      examHotspotTips: [
-        'Read fallacy questions carefully: If someone is threatened with punishment, it is Ad Baculum. If their character is smeared, it is Ad Hominem.',
-        'Sartre insisted that freedom brings unavoidable responsibility.'
-      ]
-    }
-  ],
-  ges300: [
-    {
-      id: 'sum_300_1',
-      chapterNumber: 1,
-      title: 'Entrepreneurial Mindset & Venture Ideation',
-      summaryBullets: [
-        'Entrepreneurship is the process of identifying market opportunities, assembling resources, and assuming calculated risks to create economic value.',
-        'Joseph Schumpeter emphasized innovation and "Creative Destruction" as the core driver of entrepreneurship.',
-        'Intrapreneurship refers to exercising entrepreneurial initiative within an established corporation or institution.',
-        'Environmental scanning in Nigeria involves analyzing political, economic, socio-cultural, technological, environmental, and legal (PESTEL) factors.'
-      ],
-      keyDefinitions: [
-        { term: 'Creative Destruction', meaning: 'The process where innovative new products/processes replace outdated, inefficient businesses.' },
-        { term: 'Opportunity Recognition', meaning: 'The capacity to perceive unmet consumer needs and convert them into profitable business models.' }
-      ],
-      examHotspotTips: [
-        'Schumpeter = Innovation & Creative Destruction.',
-        'Distinguish entrepreneur (starts external venture) from intrapreneur (innovates inside existing company).'
-      ]
-    },
-    {
-      id: 'sum_300_2',
-      chapterNumber: 2,
-      title: 'Feasibility Study & The Business Plan Architecture',
-      summaryBullets: [
-        'A Feasibility Study determines whether an idea is viable BEFORE significant capital is deployed.',
-        'Core pillars of Feasibility: Market Feasibility, Technical/Operational Feasibility, Financial Feasibility, Legal Feasibility.',
-        'Business Plan: A formal blueprint outlining the venture’s goals, operational model, marketing mix, and financial forecasts.',
-        'Key Sections: Executive Summary (written last, placed first), Market Analysis, Management Team, Marketing Strategy, Financial Plan.'
-      ],
-      keyDefinitions: [
-        { term: 'Executive Summary', meaning: 'A high-impact 1-2 page summary capturing the entire business plan for potential investors.' },
-        { term: 'SWOT Analysis', meaning: 'Strategic evaluation of internal Strengths & Weaknesses alongside external Opportunities & Threats.' }
-      ],
-      examHotspotTips: [
-        'Executive Summary is always drafted after completing all other sections of the business plan.',
-        'Break-Even Point (BEP) in units = Fixed Costs / Contribution Margin per unit (Price - Variable Cost).'
-      ]
-    },
-    {
-      id: 'sum_300_3',
-      chapterNumber: 3,
-      title: 'Marketing Mix, Financing & CAC Registration in Nigeria',
-      summaryBullets: [
-        'Marketing Mix (4 Ps): Product (quality, branding), Price (cost-plus, penetration, skimming), Place (distribution), Promotion (advertising, PR).',
-        'Capital Sources: Bootstrapping (personal funds), Equity Financing (selling shares/angels), Debt Financing (bank loans/microfinance), Grants (BOI, SMEDAN, Tony Elumelu Foundation).',
-        'Legal Forms in Nigeria: Sole Proprietorship (Business Name), Partnership, Private Limited Liability Company (Ltd).',
-        'CAMA 2020: Established by Corporate Affairs Commission (CAC); allows single-member private companies and electronic filing.'
-      ],
-      keyDefinitions: [
-        { term: 'Bootstrapping', meaning: 'Building an enterprise using personal savings and lean organic revenues without external loans.' },
-        { term: 'CAMA 2020', meaning: 'Companies and Allied Matters Act 2020, the primary corporate legislation regulating Nigerian enterprises.' }
-      ],
-      examHotspotTips: [
-        'Under CAMA 2020, 1 person can now legally form a Private Limited Company in Nigeria.',
-        'CAC is the sole authority for business registration in Nigeria.'
-      ]
-    }
-  ]
-};
+export const FLASHCARDS: Flashcard[] = [
+  ...CORE_CONCEPT_FLASHCARDS,
+  ...WORKBOOK_QUESTIONS.map((q, idx) => createFlashcardFromQuestion(q, idx)),
+  ...PAST_QUESTIONS.map((q, idx) => createFlashcardFromQuestion(q, idx)),
+];
+
+import { COURSE_SUMMARIES } from './courseSummariesData';
+export { COURSE_SUMMARIES };
+

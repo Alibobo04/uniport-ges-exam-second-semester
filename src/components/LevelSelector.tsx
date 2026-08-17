@@ -172,7 +172,7 @@ export const LevelSelector: React.FC<LevelSelectorProps> = ({ onSelectCourse }) 
                 Student Profile Information
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                Enter your details to create your academic record in Firestore before practicing drills and taking past question exams.
+                Please make sure to fill in your details correctly to create your academic record before practicing drills and taking past question exams.
               </p>
             </div>
 
@@ -246,7 +246,7 @@ export const LevelSelector: React.FC<LevelSelectorProps> = ({ onSelectCourse }) 
               {/* Trust & Cloud note */}
               <div className="flex items-center gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-[11px] text-slate-500">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Your profile & quiz attempts are stored securely in Firestore without requiring email passwords.</span>
+                <span>Your profile & quiz attempts are stored securely so you can track your results and progress</span>
               </div>
 
               {/* Submit Buttons */}

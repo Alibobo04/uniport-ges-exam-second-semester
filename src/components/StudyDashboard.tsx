@@ -97,8 +97,9 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
 
             <button
               onClick={onBackToLevels}
-              className="self-start md:self-auto text-xs font-semibold px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 border border-slate-700 shrink-0"
+              className="self-start md:self-auto text-xs font-semibold px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 border border-slate-700 shrink-0 cursor-pointer shadow-xs"
               title="Return to course selection"
+              id="choose-another-course-btn"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Choose Another Course</span>
@@ -253,22 +254,22 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
                 </div>
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-xs font-semibold text-blue-600">
-                    Quick Revision
+                    2 Modes Available
                   </span>
                   <span className="text-xs text-slate-400 font-mono">
-                    Concepts
+                    Cards & Notes
                   </span>
                 </div>
                 <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-1.5">
                   Flashcards & Notes
                 </h3>
                 <p className="text-xs text-slate-500 leading-relaxed mb-4">
-                  Interactive flashcards, key definition summaries, and fast revision memory aids.
+                  Access 2 distinct study modes: Interactive flashcards for active recall drills, and comprehensive chapter-by-chapter summaries.
                 </p>
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-600">
-                <span>Open Flashcards</span>
+                <span>Choose Mode & Open</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -282,18 +283,13 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
                   <Cloud className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                    <span>Cloud Quiz History & Records</span>
-                    {student && (
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> Synced to Firestore
-                      </span>
-                    )}
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Quiz History & Records
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 mt-0.5">
                     {student
-                      ? `Viewing synchronized test attempts for ${student.firstName} ${student.secondName} (${student.department})`
-                      : 'Test results and diagnostic scores are recorded in Firestore under your student profile.'}
+                      ? `Viewing test attempts for ${student.firstName} ${student.secondName} (${student.department})`
+                      : 'Test results and diagnostic scores are recorded under your student profile.'}
                   </p>
                 </div>
               </div>
@@ -301,7 +297,7 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
 
             {student ? (
               loadingAttempts ? (
-                <div className="py-6 text-center text-xs text-slate-400">Loading your test history from Firestore...</div>
+                <div className="py-6 text-center text-xs text-slate-400">Loading your test history...</div>
               ) : recentAttempts.length > 0 ? (
                 <div className="space-y-2.5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -353,7 +349,7 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
             ) : (
               <div className="bg-slate-50 border border-dashed border-slate-200 rounded-lg p-3 text-xs text-slate-500 flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-blue-500 shrink-0" />
-                <span>Scores from CBT assessments and Workbook quizzes are stored directly to your personal Firestore profile.</span>
+                <span>Scores from CBT assessments and Workbook quizzes are stored directly to your personal student profile.</span>
               </div>
             )}
           </div>
@@ -385,8 +381,8 @@ export const StudyDashboard: React.FC<StudyDashboardProps> = ({
       {activeMode === 'flashcards' && (
         <FlashcardsAndSummariesView
           course={course}
-          initialSubTab={subMode as 'flashcards' | 'summaries' | 'tips'}
-          onSubTabChange={(newTab) => onSelectMode('flashcards', newTab)}
+          initialSubTab={subMode === 'flashcards' || subMode === 'summaries' ? subMode : 'select'}
+          onSubTabChange={(newTab) => onSelectMode('flashcards', newTab === 'select' ? undefined : newTab)}
           onBackToDashboard={() => onSelectMode('hub')}
           soundEnabled={soundEnabled}
         />

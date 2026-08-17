@@ -1,7 +1,7 @@
 import React from 'react';
 import { CourseInfo } from '../types';
 import { COURSES } from '../data/coursesData';
-import { Phone, MessageCircle, BookOpen, Layers, Youtube, Linkedin, Instagram, Facebook } from 'lucide-react';
+import { Phone, MessageCircle, BookOpen, Layers, Youtube, Linkedin, Instagram, Facebook, Mail } from 'lucide-react';
 
 interface FooterProps {
   onSelectCourse: (course: CourseInfo) => void;
@@ -112,10 +112,22 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCourse }) => {
             <h4 className="font-semibold text-slate-200 text-xs">
               Contact & Feedback
             </h4>
-            <div className="bg-slate-800/80 p-3 rounded-lg border border-slate-700 space-y-1.5 text-xs">
+            <div className="bg-slate-800/80 p-3 rounded-lg border border-slate-700 space-y-2 text-xs">
               <div className="text-slate-300 font-medium">
                 Dum-suka, Barilee Josiah
               </div>
+
+              {/* Email address */}
+              <div className="flex items-center gap-1.5 text-slate-400">
+                <Mail className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <a
+                  href="mailto:jdum-suka001@uniport.edu.ng"
+                  className="hover:text-blue-300 transition-colors break-all"
+                >
+                  jdum-suka001@uniport.edu.ng
+                </a>
+              </div>
+
               <div className="flex items-center gap-3 pt-0.5 text-slate-400">
                 <div className="flex items-center gap-1">
                   <Phone className="w-3.5 h-3.5 text-blue-400" />
