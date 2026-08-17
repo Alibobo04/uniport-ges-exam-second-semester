@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CourseInfo } from '../types';
 import { COURSES } from '../data/coursesData';
-import { ArrowRight, CheckCircle2, User, Building2, Sparkles, X, ShieldCheck } from 'lucide-react';
+import { ArrowRight, CheckCircle2, User, Building2, Sparkles, X, ShieldCheck, Globe, ArrowDown } from 'lucide-react';
 import { useStudent } from '../context/StudentContext';
 
 interface LevelSelectorProps {
@@ -71,6 +71,41 @@ export const LevelSelector: React.FC<LevelSelectorProps> = ({ onSelectCourse }) 
 
   return (
     <div className="space-y-6" id="level-selection-container">
+      {/* Website & Services Notice Box */}
+      <div
+        className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-xl p-4 sm:p-4.5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+        id="website-services-notice-box"
+      >
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-blue-600/10 border border-blue-300 text-blue-700 flex items-center justify-center shrink-0">
+            <Globe className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-xs sm:text-sm font-medium text-slate-800 leading-snug">
+              Need a modern website or web application for your business or services?
+            </p>
+            <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+              Scroll down to the footer to contact me via email, phone, or WhatsApp.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            const footerEl = document.getElementById('developer-contact-box');
+            if (footerEl) {
+              footerEl.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
+          className="self-end sm:self-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white transition-colors flex items-center gap-1.5 shrink-0 shadow-xs cursor-pointer"
+          id="scroll-to-footer-btn"
+        >
+          <span>Contact Me</span>
+          <ArrowDown className="w-3 h-3" />
+        </button>
+      </div>
+
       {/* Intro Header */}
       <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
         <div className="flex items-center justify-between gap-4">
