@@ -91,6 +91,7 @@ export interface Advertisement {
   instagram?: string;
   tiktok?: string;
   pinterest?: string;
+  email?: string;
   collections?: string[];
   features?: string[];
   bannerGradient: string;

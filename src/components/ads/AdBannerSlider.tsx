@@ -46,7 +46,7 @@ export const AdBannerSlider: React.FC<AdBannerSliderProps> = ({ onSelectAd }) =>
       {/* Top Banner Tag */}
       <div className="absolute top-2 left-3 z-20 flex items-center gap-1.5 pointer-events-none">
         <span className="bg-slate-900/80 backdrop-blur-xs text-white/90 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-white/10 flex items-center gap-1">
-          <Sparkles className="w-2.5 h-2.5 text-pink-400" />
+          <Sparkles className={`w-2.5 h-2.5 ${currentAd.id === 'ambs-closet' ? 'text-amber-400' : 'text-pink-400'}`} />
           <span>Sponsored Ad</span>
         </span>
       </div>
@@ -103,8 +103,10 @@ export const AdBannerSlider: React.FC<AdBannerSliderProps> = ({ onSelectAd }) =>
                 e.stopPropagation();
                 setCurrentIndex(idx);
               }}
-              className={`w-1.5 h-1.5 rounded-full transition-all ${
-                idx === currentIndex ? 'w-4 bg-pink-400' : 'bg-white/40 hover:bg-white/70'
+              className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                idx === currentIndex
+                  ? `w-4 ${currentAd.id === 'ambs-closet' ? 'bg-amber-400' : 'bg-pink-400'}`
+                  : 'w-1.5 bg-white/40 hover:bg-white/70'
               }`}
               aria-label={`Go to slide ${idx + 1}`}
             />
