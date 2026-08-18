@@ -77,3 +77,24 @@ export interface StudentProfile {
   updatedAt?: string;
 }
 
+export interface Advertisement {
+  id: string;
+  title: string;
+  businessName: string;
+  tagline: string;
+  badge: string;
+  shortDescription: string;
+  fullDescription: string;
+  whatsappNumber: string;
+  whatsappLink: string;
+  phoneDisplay?: string;
+  instagram?: string;
+  tiktok?: string;
+  pinterest?: string;
+  collections?: string[];
+  features?: string[];
+  bannerGradient: string;
+  accentColor: string;
+  image?: string;
+}
+

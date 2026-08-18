@@ -3,12 +3,14 @@ import { CourseInfo } from '../types';
 import { COURSES } from '../data/coursesData';
 import { ArrowRight, CheckCircle2, User, Building2, Sparkles, X, ShieldCheck, Globe, ArrowDown } from 'lucide-react';
 import { useStudent } from '../context/StudentContext';
+import { AdBannerSlider } from './ads/AdBannerSlider';
 
 interface LevelSelectorProps {
   onSelectCourse: (course: CourseInfo) => void;
+  onSelectAd?: (adId: string) => void;
 }
 
-export const LevelSelector: React.FC<LevelSelectorProps> = ({ onSelectCourse }) => {
+export const LevelSelector: React.FC<LevelSelectorProps> = ({ onSelectCourse, onSelectAd }) => {
   const { student, saveStudent } = useStudent();
   const courseList = [COURSES.ges112, COURSES.ges212, COURSES.ges300];
 
@@ -105,6 +107,11 @@ export const LevelSelector: React.FC<LevelSelectorProps> = ({ onSelectCourse }) 
           <ArrowDown className="w-3 h-3" />
         </button>
       </div>
+
+      {/* Advertisement Slideshow - immediately above 'Select a Course to Begin' */}
+      {onSelectAd && (
+        <AdBannerSlider onSelectAd={onSelectAd} />
+      )}
 
       {/* Intro Header */}
       <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">

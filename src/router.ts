@@ -2,10 +2,11 @@ import { CourseId, StudyMode } from './types';
 import { COURSES } from './data/coursesData';
 
 export interface AppRoute {
-  page: 'landing' | 'course';
+  page: 'landing' | 'course' | 'ad';
   courseId?: CourseId;
   mode?: StudyMode; // 'hub' | 'workbook' | 'cbt' | 'flashcards'
   subMode?: string; // e.g. 'drill' | 'timed' | 'flashcards' | 'summaries' | 'tips'
+  adId?: string;
 }
 
 export function parseHash(hash: string): AppRoute {
@@ -16,6 +17,13 @@ export function parseHash(hash: string): AppRoute {
   }
 
   const parts = cleaned.split('/').filter(Boolean);
+
+  if (parts[0] === 'ad' && parts[1]) {
+    return {
+      page: 'ad',
+      adId: parts[1]
+    };
+  }
 
   let courseIdStr = '';
   let modeStr = '';
@@ -49,6 +57,10 @@ export function parseHash(hash: string): AppRoute {
 }
 
 export function buildHash(route: AppRoute): string {
+  if (route.page === 'ad') {
+    return `#/ad/${route.adId || 'lisas-beads'}`;
+  }
+
   if (route.page === 'landing' || !route.courseId) {
     return '#/';
   }
