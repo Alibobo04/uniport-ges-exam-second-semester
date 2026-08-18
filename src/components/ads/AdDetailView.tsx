@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Advertisement } from '../../types';
 import { AdPosterGraphic } from './AdPosterGraphic';
+import { recordAdClickRedirect, subscribeToAdMetrics } from '../../lib/adAnalyticsService';
 import { 
   ArrowLeft, 
   MessageCircle, 
@@ -23,9 +24,27 @@ interface AdDetailViewProps {
 }
 
 export const AdDetailView: React.FC<AdDetailViewProps> = ({ ad, onBack }) => {
+  const [clickCount, setClickCount] = useState<number | null>(null);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+
+    // Record unique device redirect/click in Firestore
+    recordAdClickRedirect(ad.id).then((count) => {
+      if (typeof count === 'number' && count > 0) {
+        setClickCount(count);
+      }
+    });
+
+    // Real-time listener for unique device count
+    const unsubscribe = subscribeToAdMetrics(ad.id, (uniqueClicks) => {
+      if (typeof uniqueClicks === 'number') {
+        setClickCount(uniqueClicks);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [ad.id]);
 
   const isAmbCloset = ad.id === 'ambs-closet';
 
@@ -60,6 +79,15 @@ export const AdDetailView: React.FC<AdDetailViewProps> = ({ ad, onBack }) => {
         </button>
 
         <div className="flex items-center gap-2">
+          {/* People Count Badge */}
+          <div 
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs"
+            title="Total number of unique devices/people that clicked this ad from the slide"
+          >
+            <Users className="w-3.5 h-3.5 text-blue-600" />
+            <span>{clickCount !== null ? clickCount.toLocaleString() : '1'}</span>
+          </div>
+
           <button
             onClick={handleShare}
             className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors text-xs flex items-center gap-1 cursor-pointer"
@@ -92,18 +120,31 @@ export const AdDetailView: React.FC<AdDetailViewProps> = ({ ad, onBack }) => {
         <div className="lg:col-span-6 space-y-5">
           {/* Header & Badges */}
           <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs space-y-3">
-            <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
-                isAmbCloset 
-                  ? 'bg-amber-100 text-amber-800 border border-amber-300' 
-                  : 'bg-pink-100 text-pink-700 border border-pink-200'
-              }`}>
-                <Sparkles className={`w-3 h-3 ${isAmbCloset ? 'text-amber-600' : 'text-pink-600'}`} />
-                {ad.badge}
-              </span>
-              <span className="text-xs text-slate-400 font-medium">
-                Verified Vendor
-              </span>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                  isAmbCloset 
+                    ? 'bg-amber-100 text-amber-800 border border-amber-300' 
+                    : 'bg-pink-100 text-pink-700 border border-pink-200'
+                }`}>
+                  <Sparkles className={`w-3 h-3 ${isAmbCloset ? 'text-amber-600' : 'text-pink-600'}`} />
+                  {ad.badge}
+                </span>
+                <span className="text-xs text-slate-400 font-medium">
+                  Verified Vendor
+                </span>
+              </div>
+
+              {/* Little People / Unique Devices Clicked Icon & Count */}
+              <div 
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100/90 text-slate-700 border border-slate-200 text-xs font-semibold shadow-2xs"
+                title="Number of unique people/devices who clicked this ad"
+              >
+                <Users className="w-3.5 h-3.5 text-blue-600" />
+                <span>
+                  {clickCount !== null ? clickCount.toLocaleString() : '1'} {clickCount === 1 ? 'person tapped' : 'people tapped'}
+                </span>
+              </div>
             </div>
 
             <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-serif tracking-tight">

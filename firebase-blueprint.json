@@ -119,6 +119,54 @@
         }
       },
       "required": ["id", "studentId", "courseId", "completedWorkbookCount", "updatedAt"]
+    },
+    "AdMetric": {
+      "title": "AdMetric",
+      "description": "Aggregated metrics and unique click counts for an advertisement",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Advertisement identifier matching adId"
+        },
+        "adId": {
+          "type": "string",
+          "description": "Advertisement identifier"
+        },
+        "uniqueClicks": {
+          "type": "number",
+          "description": "Total count of unique devices that clicked and visited the ad"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when ad metric was last incremented"
+        }
+      },
+      "required": ["id", "adId", "uniqueClicks", "updatedAt"]
+    },
+    "AdVisitor": {
+      "title": "AdVisitor",
+      "description": "Record of a unique device that viewed the full ad detail page",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique device identifier"
+        },
+        "adId": {
+          "type": "string",
+          "description": "Advertisement identifier"
+        },
+        "deviceId": {
+          "type": "string",
+          "description": "Unique device identifier"
+        },
+        "firstVisitedAt": {
+          "type": "string",
+          "description": "Timestamp of the first visit from this device"
+        }
+      },
+      "required": ["id", "adId", "deviceId", "firstVisitedAt"]
     }
   },
   "firestore": {
@@ -133,6 +181,14 @@
     "/students/{studentId}/progress/{courseId}": {
       "schema": "CourseProgress",
       "description": "Course-specific learning progress and study metrics"
+    },
+    "/adMetrics/{adId}": {
+      "schema": "AdMetric",
+      "description": "Summary click and unique audience engagement metric for the ad"
+    },
+    "/adMetrics/{adId}/visitors/{deviceId}": {
+      "schema": "AdVisitor",
+      "description": "Unique device record ensuring single click count per device"
     }
   }
 }

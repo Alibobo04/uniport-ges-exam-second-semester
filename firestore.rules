@@ -58,6 +58,22 @@ service cloud.firestore {
         && (!('lastStudiedAt' in data) || (data.lastStudiedAt is string && data.lastStudiedAt.size() <= 64));
     }
 
+    function isValidAdMetric(data, adId) {
+      return data.keys().hasAll(['id', 'adId', 'uniqueClicks', 'updatedAt'])
+        && data.id is string && data.id == adId
+        && data.adId is string && data.adId == adId
+        && data.uniqueClicks is number && data.uniqueClicks >= 0
+        && data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    function isValidAdVisitor(data, adId, deviceId) {
+      return data.keys().hasAll(['id', 'adId', 'deviceId', 'firstVisitedAt'])
+        && data.id is string && data.id == deviceId
+        && data.adId is string && data.adId == adId
+        && data.deviceId is string && data.deviceId == deviceId
+        && data.firstVisitedAt is string && data.firstVisitedAt.size() <= 64;
+    }
+
     // Student profile documents
     match /students/{studentId} {
       allow get: if isValidId(studentId);
@@ -79,6 +95,19 @@ service cloud.firestore {
         allow create: if isValidId(studentId) && isValidId(courseId) && isValidCourseProgress(incoming(), studentId);
         allow update: if isValidId(studentId) && isValidId(courseId) && isValidCourseProgress(incoming(), studentId) && incoming().studentId == existing().studentId && incoming().courseId == existing().courseId;
         allow delete: if isValidId(studentId) && isValidId(courseId);
+      }
+    }
+
+    // Ad Metrics and unique device visitor tracking
+    match /adMetrics/{adId} {
+      allow get, list: if isValidId(adId);
+      allow create, update: if isValidId(adId) && isValidAdMetric(incoming(), adId);
+      allow delete: if false;
+
+      match /visitors/{deviceId} {
+        allow get, list: if isValidId(adId) && isValidId(deviceId);
+        allow create: if isValidId(adId) && isValidId(deviceId) && isValidAdVisitor(incoming(), adId, deviceId);
+        allow update, delete: if false;
       }
     }
   }
