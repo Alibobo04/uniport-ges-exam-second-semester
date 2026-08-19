@@ -9,9 +9,12 @@ import { getAdvertisementById } from './data/advertisementsData';
 import { Footer } from './components/Footer';
 import { AppRoute, parseHash, navigateTo, navigateBack } from './router';
 import { StudentProvider } from './context/StudentContext';
+import { WhatsAppGroupModal } from './components/WhatsAppGroupModal';
+import { shouldShowWhatsAppModal } from './lib/whatsAppPromptService';
 
 export default function App() {
   const [route, setRoute] = useState<AppRoute>(() => parseHash(window.location.hash));
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
     try {
       const saved = localStorage.getItem('ges_sound_pref');
@@ -75,6 +78,16 @@ export default function App() {
 
   const currentAd = isAdPage ? getAdvertisementById(route.adId || 'lisas-beads') : undefined;
 
+  // Show WhatsApp popup modal when entering or refreshing on the first landing page
+  useEffect(() => {
+    if (isLandingPage && shouldShowWhatsAppModal()) {
+      const timer = setTimeout(() => {
+        setShowWhatsAppModal(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isLandingPage]);
+
   return (
     <StudentProvider>
       <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-blue-600 selection:text-white">
@@ -116,6 +129,12 @@ export default function App() {
             </div>
           )}
         </main>
+
+        {/* Official WhatsApp Group Modal Popup */}
+        <WhatsAppGroupModal
+          isOpen={showWhatsAppModal}
+          onClose={() => setShowWhatsAppModal(false)}
+        />
 
         {/* Footer */}
         <Footer onSelectCourse={handleSelectCourse} />

@@ -167,9 +167,25 @@
         }
       },
       "required": ["id", "adId", "deviceId", "firstVisitedAt"]
+    },
+    "TestConnection": {
+      "title": "TestConnection",
+      "description": "Probe document to verify active database connectivity",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Document identifier"
+        }
+      },
+      "required": ["id"]
     }
   },
   "firestore": {
+    "/test/{docId}": {
+      "schema": "TestConnection",
+      "description": "Health probe path to verify client connectivity"
+    },
     "/students/{studentId}": {
       "schema": "StudentProfile",
       "description": "Student registration and profile document"

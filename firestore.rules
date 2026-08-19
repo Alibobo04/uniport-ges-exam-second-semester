@@ -74,6 +74,12 @@ service cloud.firestore {
         && data.firstVisitedAt is string && data.firstVisitedAt.size() <= 64;
     }
 
+    // Connection health test probe
+    match /test/{docId} {
+      allow get: if isValidId(docId);
+      allow create, update, delete: if false;
+    }
+
     // Student profile documents
     match /students/{studentId} {
       allow get: if isValidId(studentId);

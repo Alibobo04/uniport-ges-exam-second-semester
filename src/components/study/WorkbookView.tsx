@@ -6,6 +6,8 @@ import {
   AlertTriangle, Check, ArrowLeft, Cloud
 } from 'lucide-react';
 import { saveQuizAttempt, saveCourseProgress } from '../../lib/quizService';
+import { WhatsAppGroupModal } from '../WhatsAppGroupModal';
+import { shouldShowWhatsAppModal } from '../../lib/whatsAppPromptService';
 
 interface WorkbookViewProps {
   course: CourseInfo;
@@ -87,6 +89,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
   });
   const [examStarted, setExamStarted] = useState(false);
   const [examSubmitted, setExamSubmitted] = useState(false);
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
   const [durationMinutes, setDurationMinutes] = useState<number>(15);
   const [timeRemaining, setTimeRemaining] = useState<number>(15 * 60);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
@@ -271,6 +274,13 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
     }).catch((err) => {
       console.warn('Could not save attempt to cloud:', err);
     });
+
+    // Trigger WhatsApp official group popup after submitting timed workbook quiz
+    if (shouldShowWhatsAppModal()) {
+      setTimeout(() => {
+        setShowWhatsAppModal(true);
+      }, 700);
+    }
   };
 
   const completedDrillCount = Object.keys(completedQuestions).length;
@@ -1340,6 +1350,13 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Official WhatsApp Group Modal Popup */}
+      <WhatsAppGroupModal
+        isOpen={showWhatsAppModal}
+        onClose={() => setShowWhatsAppModal(false)}
+        contextMessage="Congratulations on submitting your timed workbook quiz! Join the official GES QUIZ HUB WhatsApp group for more study materials and exam tips."
+      />
     </div>
   );
 };

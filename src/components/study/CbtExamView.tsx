@@ -5,6 +5,8 @@ import {
   ChevronRight, AlertTriangle, BookOpen, ArrowLeft
 } from 'lucide-react';
 import { saveQuizAttempt } from '../../lib/quizService';
+import { WhatsAppGroupModal } from '../WhatsAppGroupModal';
+import { shouldShowWhatsAppModal } from '../../lib/whatsAppPromptService';
 
 interface CbtExamViewProps {
   course: CourseInfo;
@@ -44,6 +46,7 @@ export const CbtExamView: React.FC<CbtExamViewProps> = ({
   });
   const [examStarted, setExamStarted] = useState(false);
   const [examSubmitted, setExamSubmitted] = useState(false);
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
   const [durationMinutes, setDurationMinutes] = useState<number>(15);
   const [timeRemaining, setTimeRemaining] = useState<number>(15 * 60);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
@@ -175,6 +178,13 @@ export const CbtExamView: React.FC<CbtExamViewProps> = ({
     }).catch((err) => {
       console.warn('Could not save CBT attempt to cloud:', err);
     });
+
+    // Trigger WhatsApp official group popup after submitting timed CBT quiz
+    if (shouldShowWhatsAppModal()) {
+      setTimeout(() => {
+        setShowWhatsAppModal(true);
+      }, 700);
+    }
   };
 
   // Calculate score based on current randomized exam questions
@@ -866,6 +876,13 @@ export const CbtExamView: React.FC<CbtExamViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Official WhatsApp Group Modal Popup */}
+      <WhatsAppGroupModal
+        isOpen={showWhatsAppModal}
+        onClose={() => setShowWhatsAppModal(false)}
+        contextMessage="Congratulations on submitting your CBT past questions exam! Join the official GES QUIZ HUB WhatsApp group for more study materials and exam tips."
+      />
     </div>
   );
 };
