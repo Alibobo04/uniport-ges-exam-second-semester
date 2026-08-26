@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Gradients & Color Constants -->
+    <linearGradient id="orangeSpireLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F7931E"/>
+      <stop offset="100%" stop-color="#E65100"/>
+    </linearGradient>
+    <linearGradient id="orangeSpireRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFA726"/>
+      <stop offset="100%" stop-color="#F57C00"/>
+    </linearGradient>
+    <linearGradient id="darkNavyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#231349"/>
+      <stop offset="100%" stop-color="#160C30"/>
+    </linearGradient>
+    <linearGradient id="leftPageBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#054D8C"/>
+      <stop offset="100%" stop-color="#023B70"/>
+    </linearGradient>
+    <linearGradient id="rightPageBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4A98D3"/>
+      <stop offset="100%" stop-color="#2B7BB9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background container for crisp visibility across dark/light browser tabs -->
+  <rect width="512" height="512" rx="96" fill="#FFFFFF"/>
+
+  <g transform="translate(0, 8)">
+    <!-- Top Orange Diamond Spire (Flame / Pinnacle) -->
+    <!-- Left Half -->
+    <path d="M 256,54 L 196,176 L 253,212 L 256,214 Z" fill="url(#orangeSpireLeft)"/>
+    <!-- Right Half -->
+    <path d="M 256,54 L 316,176 L 259,212 L 256,214 Z" fill="url(#orangeSpireRight)"/>
+    <!-- Center white dividing pin -->
+    <line x1="256" y1="54" x2="256" y2="214" stroke="#FFFFFF" stroke-width="4"/>
+
+    <!-- Bottom & Outer Dark Navy Hexagonal Frame / Chevron -->
+    <!-- Left Outer Wing -->
+    <path d="M 56,192 L 92,165 L 92,274 L 210,336 L 210,372 L 56,290 Z" fill="#1C1141"/>
+    <!-- Right Outer Wing -->
+    <path d="M 456,192 L 420,165 L 420,274 L 302,336 L 302,372 L 456,290 Z" fill="#1C1141"/>
+    
+    <!-- Heavy Outer Dark Base Shield (Bottom V-Hull) -->
+    <path d="M 56,192 L 92,165 L 92,334 L 256,448 L 420,334 L 420,165 L 456,192 L 456,338 L 256,478 L 56,338 Z" fill="#1C1141"/>
+
+    <!-- Left Upper Main Page (Royal Blue) -->
+    <path d="M 142,100 L 252,216 C 252,216 230,300 256,368 C 218,348 162,314 125,274 L 125,112 Z" fill="url(#leftPageBlue)"/>
+
+    <!-- Right Upper Main Page (Cerulean Blue) -->
+    <path d="M 370,100 L 260,216 C 260,216 282,300 256,368 C 294,348 350,314 387,274 L 387,112 Z" fill="url(#rightPageBlue)"/>
+
+    <!-- Middle Page White Layers (Left Wing) -->
+    <path d="M 108,160 L 124,148 L 124,286 C 160,324 212,354 256,374 C 212,358 152,328 108,284 Z" fill="#FFFFFF"/>
+    <path d="M 92,188 L 107,177 L 107,300 C 145,340 198,370 256,392 C 206,374 140,342 92,298 Z" fill="#FFFFFF"/>
+
+    <!-- Middle Page White Layers (Right Wing) -->
+    <path d="M 404,160 L 388,148 L 388,286 C 352,324 300,354 256,374 C 300,358 360,328 404,284 Z" fill="#FFFFFF"/>
+    <path d="M 420,188 L 405,177 L 405,300 C 367,340 314,370 256,392 C 306,374 372,342 420,298 Z" fill="#FFFFFF"/>
+
+    <!-- Inner Dark Navy Rib / Line Dividers between layers -->
+    <!-- Left Navy Layer Band -->
+    <path d="M 108,160 L 125,148 L 125,274 L 230,344 L 218,358 L 108,284 Z" fill="#1C1141"/>
+    <!-- Right Navy Layer Band -->
+    <path d="M 404,160 L 387,148 L 387,274 L 282,344 L 294,358 L 404,284 Z" fill="#1C1141"/>
+
+    <!-- Lower Dark Navy Layer Band Left -->
+    <path d="M 92,188 L 108,177 L 108,298 L 244,380 L 236,394 L 92,298 Z" fill="#1C1141"/>
+    <!-- Lower Dark Navy Layer Band Right -->
+    <path d="M 420,188 L 404,177 L 404,298 L 268,380 L 276,394 L 420,298 Z" fill="#1C1141"/>
+
+    <!-- Central White Spine & Page Fan Origin -->
+    <path d="M 256,212 C 253,270 248,328 256,372 C 264,328 259,270 256,212 Z" fill="#FFFFFF"/>
+    
+    <!-- Fan Out White Pages on Base -->
+    <path d="M 256,372 C 210,354 135,316 92,334 L 256,448 L 420,334 C 377,316 302,354 256,372 Z" fill="#FFFFFF"/>
+    
+    <!-- Central Bottom Spine Notch / Chevron Gap -->
+    <path d="M 256,372 L 256,448" stroke="#1C1141" stroke-width="6"/>
+  </g>
+</svg>
