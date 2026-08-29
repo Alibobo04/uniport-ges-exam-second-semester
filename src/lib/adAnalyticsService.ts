@@ -5,7 +5,12 @@ import {
   onSnapshot, 
   increment 
 } from 'firebase/firestore';
-import { db } from './firebase';
+import { 
+  db, 
+  isCloudWriteAvailable, 
+  markQuotaExceeded, 
+  isQuotaError 
+} from './firebase';
 
 const DEVICE_ID_KEY = 'uniport_device_unique_id';
 
@@ -30,78 +35,96 @@ export function getOrCreateDeviceId(): string {
 
 /**
  * Record a unique click/redirect for a specific ad from this device.
- * Guaranteed to only count once per device in Firestore.
+ * Guaranteed to only count once per device.
  */
 export async function recordAdClickRedirect(adId: string): Promise<number> {
   const deviceId = getOrCreateDeviceId();
   const localClickKey = `uniport_ad_clicked_${adId}`;
+  const localCountKey = `ad_count_cache_${adId}`;
+
+  // Get current local count
+  let currentCount = 1;
+  try {
+    const raw = localStorage.getItem(localCountKey);
+    if (raw) {
+      currentCount = parseInt(raw, 10) || 1;
+    }
+  } catch {
+    // ignore
+  }
+
+  // If already clicked on this device, return current count
+  const hasClickedLocally = localStorage.getItem(localClickKey);
+  if (hasClickedLocally) {
+    return currentCount;
+  }
+
+  // Mark clicked locally immediately
+  try {
+    localStorage.setItem(localClickKey, 'true');
+    localStorage.setItem(localCountKey, (currentCount + 1).toString());
+  } catch {
+    // ignore
+  }
+
+  if (!isCloudWriteAvailable()) {
+    return currentCount + 1;
+  }
 
   try {
     const metricDocRef = doc(db, 'adMetrics', adId);
     const visitorDocRef = doc(db, 'adMetrics', adId, 'visitors', deviceId);
 
-    // Check if this device already clicked locally first to avoid unnecessary network writes
-    const hasClickedLocally = localStorage.getItem(localClickKey);
+    const visitorSnap = await getDoc(visitorDocRef);
 
-    if (!hasClickedLocally) {
-      // Check in Firestore visitor subcollection
-      const visitorSnap = await getDoc(visitorDocRef);
+    if (!visitorSnap.exists()) {
+      const now = new Date().toISOString();
 
-      if (!visitorSnap.exists()) {
-        const now = new Date().toISOString();
+      // 1. Record this device as visitor
+      await setDoc(visitorDocRef, {
+        id: deviceId,
+        adId: adId,
+        deviceId: deviceId,
+        firstVisitedAt: now,
+      });
 
-        // 1. Record this device as visitor
-        await setDoc(visitorDocRef, {
-          id: deviceId,
-          adId: adId,
-          deviceId: deviceId,
-          firstVisitedAt: now,
-        });
-
-        // 2. Increment aggregate unique click count or initialize it
-        const metricSnap = await getDoc(metricDocRef);
-        if (metricSnap.exists()) {
-          await setDoc(
-            metricDocRef,
-            {
-              id: adId,
-              adId: adId,
-              uniqueClicks: increment(1),
-              updatedAt: now,
-            },
-            { merge: true }
-          );
-        } else {
-          await setDoc(metricDocRef, {
+      // 2. Increment aggregate unique click count or initialize it
+      const metricSnap = await getDoc(metricDocRef);
+      if (metricSnap.exists()) {
+        await setDoc(
+          metricDocRef,
+          {
             id: adId,
             adId: adId,
-            uniqueClicks: 1,
+            uniqueClicks: increment(1),
             updatedAt: now,
-          });
-        }
-
-        // Cache locally that this device has recorded its click
-        try {
-          localStorage.setItem(localClickKey, 'true');
-        } catch {
-          // ignore storage error
-        }
+          },
+          { merge: true }
+        );
       } else {
-        localStorage.setItem(localClickKey, 'true');
+        await setDoc(metricDocRef, {
+          id: adId,
+          adId: adId,
+          uniqueClicks: 1,
+          updatedAt: now,
+        });
       }
     }
 
-    // Get current count
+    // Get updated count
     const metricSnap = await getDoc(metricDocRef);
     if (metricSnap.exists()) {
       const data = metricSnap.data();
-      return typeof data.uniqueClicks === 'number' ? data.uniqueClicks : 1;
+      const count = typeof data.uniqueClicks === 'number' ? data.uniqueClicks : currentCount + 1;
+      localStorage.setItem(localCountKey, count.toString());
+      return count;
     }
-    return 1;
+    return currentCount + 1;
   } catch (err) {
-    console.warn('Ad analytics tracking fallback: ', err);
-    // Return fallback cached count
-    return 1;
+    if (isQuotaError(err)) {
+      markQuotaExceeded();
+    }
+    return currentCount + 1;
   }
 }
 
@@ -113,9 +136,10 @@ export function subscribeToAdMetrics(
   callback: (uniqueClicks: number) => void
 ): () => void {
   const metricDocRef = doc(db, 'adMetrics', adId);
+  const localCountKey = `ad_count_cache_${adId}`;
 
   // Initial local cached seed value
-  const cachedVal = localStorage.getItem(`ad_count_cache_${adId}`);
+  const cachedVal = localStorage.getItem(localCountKey);
   if (cachedVal) {
     const parsed = parseInt(cachedVal, 10);
     if (!isNaN(parsed) && parsed > 0) {
@@ -123,22 +147,30 @@ export function subscribeToAdMetrics(
     }
   }
 
-  const unsubscribe = onSnapshot(
-    metricDocRef,
-    (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        const count = typeof data.uniqueClicks === 'number' ? data.uniqueClicks : 0;
-        localStorage.setItem(`ad_count_cache_${adId}`, count.toString());
-        callback(count);
-      } else {
-        callback(0);
-      }
-    },
-    (err) => {
-      console.warn('Ad metrics listener offline/fallback: ', err);
-    }
-  );
+  if (!isCloudWriteAvailable()) {
+    return () => {};
+  }
 
-  return unsubscribe;
+  try {
+    const unsubscribe = onSnapshot(
+      metricDocRef,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          const count = typeof data.uniqueClicks === 'number' ? data.uniqueClicks : 0;
+          localStorage.setItem(localCountKey, count.toString());
+          callback(count);
+        }
+      },
+      (err) => {
+        if (isQuotaError(err)) {
+          markQuotaExceeded();
+        }
+      }
+    );
+
+    return unsubscribe;
+  } catch {
+    return () => {};
+  }
 }
