@@ -6,7 +6,7 @@
 const STORAGE_KEY = 'ges_wa_modal_daily_confirmations';
 const MAX_DAILY_CONFIRMATIONS = 3;
 
-export const OFFICIAL_WHATSAPP_GROUP_LINK = 'https://chat.whatsapp.com/JZA3vuXdR1ZBLn0UHop2yJ?s=cl&p=a&ilr=0';
+export const OFFICIAL_WHATSAPP_GROUP_LINK = 'https://chat.whatsapp.com/BmXxToxwmnDKosyNckAyNW?s=cl&p=a&ilr=0';
 export const OFFICIAL_GROUP_NAME = 'GES QUIZ HUB';
 
 function getLocalDateString(): string {
