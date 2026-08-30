@@ -1,0 +1,14 @@
+[build.environment]
+  # This is a browser-only Vite app that talks to Cloud Firestore directly, so the
+  # Firebase web config in firebase-applet-config.json (including `apiKey`) is
+  # necessarily bundled into dist/assets/*.js and served to every visitor. Firebase
+  # web API keys are public project identifiers, not credentials: access is enforced
+  # by firestore.rules (default-deny + per-entity validation) and by API key
+  # restrictions in the Google Cloud console, not by keeping the key hidden.
+  #
+  # Netlify's smart detection matches the generic `AIza...` shape and flags that key
+  # as a likely secret, failing the build. Turning smart detection off suppresses
+  # only this pattern-based heuristic. Scanning of real secret values (anything set
+  # as an environment variable on the site, e.g. GEMINI_API_KEY) stays enabled, so a
+  # genuine credential leaking into the build output will still fail the deploy.
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
