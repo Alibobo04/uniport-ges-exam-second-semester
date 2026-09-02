@@ -83,7 +83,7 @@ export const WORKBOOK_QUESTIONS: Question[] = [
   // ================= GES 212.2 WORKBOOK (260 PRACTICE DRILLS) =================
   ...GES212_PRACTICE_QUESTIONS,
 
-  // ================= GES 300.2 WORKBOOK (208 PRACTICE DRILLS) =================
+  // ================= GES 300.2 WORKBOOK (300 PRACTICE DRILLS) =================
   ...GES300_PRACTICE_QUESTIONS
 ].map(sanitizeQuestion);
 

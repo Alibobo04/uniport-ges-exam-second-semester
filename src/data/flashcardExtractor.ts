@@ -103,6 +103,20 @@ function deriveTermFromQuestion(rawQ: string, topic: string, correctOpt: string,
     if (qLower.includes('sole proprietorship') || optLower.includes('sole proprietorship')) return 'Sole Proprietorship Business Structure';
     if (qLower.includes('partnership') || optLower.includes('partnership')) return 'Partnership Enterprise Structure';
     if (qLower.includes('limited liability') || optLower.includes('limited liability')) return 'Private Limited Liability Company (Ltd)';
+    if (qLower.includes('organizational culture') || optLower.includes('organizational culture')) return 'Organizational Culture & Corporate Values';
+    if (qLower.includes('employee retention') || optLower.includes('employee retention')) return 'Employee Retention & Talent Management';
+    if (qLower.includes('job description') || optLower.includes('job description')) return 'Job Description vs. Specification';
+    if (qLower.includes('total quality') || qLower.includes('tqm') || optLower.includes('tqm')) return 'Total Quality Management (TQM)';
+    if (qLower.includes('supply chain') || optLower.includes('supply chain')) return 'Supply Chain & Operations Management';
+    if (qLower.includes('inventory') || optLower.includes('inventory')) return 'Inventory Control & Stock Management';
+    if (qLower.includes('corporate social responsibility') || qLower.includes('csr') || optLower.includes('csr')) return 'Corporate Social Responsibility (CSR)';
+    if (qLower.includes('business ethics') || optLower.includes('business ethics')) return 'Business Ethics & Enterprise Governance';
+    if (qLower.includes('franchis') || optLower.includes('franchis')) return 'Franchising & Business Licensing';
+    if (qLower.includes('trademark') || optLower.includes('trademark')) return 'Trademarks & Brand Identity Protection';
+    if (qLower.includes('patent') || optLower.includes('patent')) return 'Patents & Technical Invention Rights';
+    if (qLower.includes('copyright') || optLower.includes('copyright')) return 'Copyright & Intellectual Property (NCC)';
+    if (qLower.includes('e-commerce') || qLower.includes('ecommerce') || optLower.includes('e-commerce')) return 'E-Commerce & Digital Commerce Models';
+    if (qLower.includes('market segmentation') || optLower.includes('market segmentation')) return 'Market Segmentation & Targeting Strategy';
   }
 
   // 5. If correct option is concise and meaningful
